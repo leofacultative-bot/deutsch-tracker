@@ -2509,7 +2509,7 @@ async function authInit() {
 async function authSignInGoogle() {
   const { error } = await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href }
+    options: { redirectTo: 'https://leofacultative-bot.github.io/deutsch-tracker' }
   });
   if (error) {
     const el = document.getElementById('auth-error');
