@@ -1109,28 +1109,14 @@ header { padding: 40px 0 28px; }
       </div>
     </div>
 
-    <!-- CONNECTION SETUP -->
-    <div class="rl-setup" id="rl-setup">
-      <div class="section-label">VERBINDUNG</div>
-      <div class="rl-hint" id="rl-hint">
-        <strong>Erste Schritte (einmalig, nur eine Person nötig):</strong><br>
-        1. Erstelle ein kostenloses Konto auf <a href="https://jsonbin.io" target="_blank">jsonbin.io</a><br>
-        2. Gehe zu <strong>API Keys</strong> → neuen Key erstellen → hier einfügen<br>
-        3. Nach dem ersten Speichern erscheint eine <strong>Bin ID</strong> — diese an alle Freunde schicken<br>
-        4. Freunde fügen denselben Key + dieselbe Bin ID ein → fertig!
+    <!-- AUTO-JOIN NOTICE -->
+    <div class="rl-setup" id="rl-setup" style="border-color:rgba(45,106,79,.3);background:rgba(45,106,79,.04)">
+      <div class="section-label">AUTOMATISCH VERBUNDEN</div>
+      <div class="rl-hint" style="border-color:rgba(45,106,79,.25);background:rgba(45,106,79,.06);color:var(--green)">
+        ✓ <strong>Du bist automatisch in der Rangliste.</strong><br>
+        Jeder der sich mit Google anmeldet, erscheint hier automatisch.<br>
+        Teile einfach den Link mit deinen Freunden — kein Setup nötig!
       </div>
-      <div class="rl-config-row">
-        <div class="input-group">
-          <div class="rl-input-label">JSONBIN.IO API KEY</div>
-          <input class="add-input" id="rl-apikey" type="password" placeholder="$2b$10$..." autocomplete="off">
-        </div>
-        <div class="input-group short">
-          <div class="rl-input-label">BIN ID (nach erstem Speichern)</div>
-          <input class="add-input" id="rl-binid" type="text" placeholder="automatisch">
-        </div>
-        <button class="btn btn-ink" onclick="rlSaveConfig()">VERBINDEN</button>
-      </div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:6px">Der Key wird nur lokal in deinem Browser gespeichert.</div>
     </div>
 
     <div id="rl-status" class="rl-status"></div>
@@ -1138,15 +1124,12 @@ header { padding: 40px 0 28px; }
     <!-- MY ENTRY -->
     <div class="rl-entry-panel">
       <div class="section-label">MEIN EINTRAG</div>
-      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:1;min-width:180px">
-          <div class="rl-input-label">DEIN NAME (einmalig)</div>
-          <input class="add-input" id="rl-name" type="text" placeholder="z.B. Yasmin" onblur="rlOnNameSet()">
-        </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)" id="rl-myname-display"></div>
         <div class="rl-autosync-badge" id="rl-autosync-badge">
           <span class="rl-spinner" id="rl-spin" style="display:none"></span>
           <span id="rl-sync-dot" class="rl-sync-dot"></span>
-          <span id="rl-sync-label">WARTE AUF NAME...</span>
+          <span id="rl-sync-label">VERBINDE...</span>
         </div>
       </div>
     </div>
@@ -2116,13 +2099,8 @@ function updateNavCounts() {
 }
 
 // ══════════════════════════════════════
-// RANGLISTE
+// RANGLISTE — Supabase powered
 // ══════════════════════════════════════
-const RL_CFG_KEY = 'de_rl_config';
-const RL_ME_KEY  = 'de_rl_me';
-const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
-
-let rlCfg = { apiKey:'', binId:'' };
 let rlBoard = { players:[] };
 let rlMe = '';
 let rlSort = 'total';
@@ -2180,32 +2158,57 @@ function rlRenderPreview() {
 }
 
 function rlLoadConfig() {
+  // No-op: config is now automatic via Supabase
+}
+
+async function rlSupaPublish() {
+  if (!authUser) return;
+  const name = authUser.user_metadata?.full_name || authUser.email || 'Anonym';
+  rlMe = name;
+  const el = document.getElementById('rl-myname-display');
+  if (el) el.textContent = '👤 ' + name;
+  rlSyncStatus('SYNCHRONISIERT...', 'syncing');
+  rlSpin(true);
   try {
-    const r = localStorage.getItem(RL_CFG_KEY);
-    if(r) rlCfg = JSON.parse(r);
-    rlMe = localStorage.getItem(RL_ME_KEY)||'';
-  } catch(e){}
-  document.getElementById('rl-apikey').value = rlCfg.apiKey||'';
-  document.getElementById('rl-binid').value  = rlCfg.binId||'';
-  if(rlMe) document.getElementById('rl-name').value = rlMe;
-  if(rlCfg.apiKey) document.getElementById('rl-hint').style.display='none';
+    const entry = rlBuildMyEntry(name);
+    const { error } = await supa.from('leaderboard').upsert({
+      user_id: authUser.id,
+      display_name: name,
+      data: entry,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+    if (error) throw error;
+    await rlSupaLoad();
+    const t = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+    rlSyncStatus('ZULETZT: ' + t, 'ok');
+    document.getElementById('rl-hdr-updated').textContent = 'Stand: ' + t + ' Uhr';
+  } catch(e) {
+    rlSyncStatus('FEHLER', 'err');
+    console.error('Leaderboard publish error:', e);
+  }
+  rlSpin(false);
 }
 
-function rlSaveConfig() {
-  const key = document.getElementById('rl-apikey').value.trim();
-  const bin = document.getElementById('rl-binid').value.trim();
-  if(!key){ rlStatus('Bitte API Key eingeben.','err'); return; }
-  rlCfg = { apiKey:key, binId:bin };
-  localStorage.setItem(RL_CFG_KEY, JSON.stringify(rlCfg));
-  document.getElementById('rl-hint').style.display='none';
-  rlStatus('Verbindung gespeichert. Synchronisiere...','loading');
-  if(rlMe) { rlAutoSync(); rlStartAutoSync(); }
-  else rlLoad();
+async function rlSupaLoad() {
+  try {
+    const { data, error } = await supa.from('leaderboard').select('display_name, data, updated_at');
+    if (error) throw error;
+    rlBoard.players = (data||[]).map(row => ({
+      ...row.data,
+      name: row.display_name,
+      updated: new Date(row.updated_at).toLocaleDateString('de-DE')
+    }));
+    rlRender();
+    document.getElementById('nav-count-rangliste').textContent = rlBoard.players.length || '';
+    document.getElementById('rl-hdr-count').textContent = rlBoard.players.length;
+  } catch(e) {
+    console.error('Leaderboard load error:', e);
+  }
 }
 
-// ── AUTO-SYNC & AUTO-PUBLISH ──
+// ── AUTO-SYNC ──
 let rlSyncTimer = null;
-const RL_SYNC_INTERVAL = 60000; // 60 seconds
+const RL_SYNC_INTERVAL = 60000;
 
 function rlSyncStatus(msg, state) {
   const dot = document.getElementById('rl-sync-dot');
@@ -2216,144 +2219,21 @@ function rlSyncStatus(msg, state) {
 
 function rlStartAutoSync() {
   if(rlSyncTimer) clearInterval(rlSyncTimer);
-  rlSyncTimer = setInterval(rlAutoSync, RL_SYNC_INTERVAL);
-}
-
-async function rlAutoSync() {
-  if(!rlCfg.apiKey || !rlMe) return;
-  rlSyncStatus('SYNCHRONISIERT...', 'syncing');
-  rlSpin(true);
-  try {
-    // Pull latest from bin
-    try {
-      const data = await rlReadBin();
-      if(data && data.players) rlBoard = data;
-    } catch(e2) {
-      if(!rlCfg.binId || e2.message.includes('404')) rlBoard = { players: [] };
-    }
-    // Push my updated entry
-    const entry = rlBuildMyEntry(rlMe);
-    const idx = rlBoard.players.findIndex(p => p.name.toLowerCase() === rlMe.toLowerCase());
-    if(idx >= 0) rlBoard.players[idx] = entry; else rlBoard.players.push(entry);
-    await rlWriteBin(rlBoard);
-    rlRender();
-    const t = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-    rlSyncStatus('ZULETZT: ' + t, 'ok');
-    document.getElementById('rl-hdr-updated').textContent = 'Stand: ' + t + ' Uhr';
-    document.getElementById('nav-count-rangliste').textContent = rlBoard.players.length || '';
-  } catch(e) {
-    rlSyncStatus('FEHLER', 'err');
-    rlStatus('Sync-Fehler: ' + e.message, 'err');
-  }
-  rlSpin(false);
-}
-
-function rlOnNameSet() {
-  const name = document.getElementById('rl-name').value.trim();
-  if(!name) return;
-  rlMe = name;
-  localStorage.setItem(RL_ME_KEY, rlMe);
-  if(rlCfg.apiKey) {
-    rlSyncStatus('VERBINDE...', 'syncing');
-    rlAutoSync();
-    rlStartAutoSync();
-  }
+  rlSyncTimer = setInterval(rlSupaPublish, RL_SYNC_INTERVAL);
 }
 
 function rlOnEnter() {
-  rlLoadConfig();
-  if(rlCfg.apiKey && rlMe) {
-    rlSyncStatus('VERBINDE...', 'syncing');
-    rlAutoSync();
-    rlStartAutoSync();
-  } else if(rlCfg.apiKey && !rlMe) {
-    rlSyncStatus('WARTE AUF NAME...', '');
-    rlLoad();
-  }
-}
-
-async function rlReadBin() {
-  if(!rlCfg.binId) return null;
-  const r = await fetch(JSONBIN_BASE+'/b/'+rlCfg.binId+'/latest',{
-    headers:{'X-Master-Key':rlCfg.apiKey,'X-Bin-Meta':'false'}
-  });
-  if(!r.ok) throw new Error('Lesefehler: '+r.status);
-  return await r.json();
-}
-
-async function rlWriteBin(data) {
-  if(!rlCfg.binId) {
-    const r = await fetch(JSONBIN_BASE+'/b',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Master-Key':rlCfg.apiKey,'X-Bin-Name':'de-rangliste'},
-      body:JSON.stringify(data)
-    });
-    if(!r.ok) throw new Error('Erstellungsfehler: '+r.status);
-    const j = await r.json();
-    rlCfg.binId = j.metadata.id;
-    document.getElementById('rl-binid').value = rlCfg.binId;
-    localStorage.setItem(RL_CFG_KEY, JSON.stringify(rlCfg));
-    return j.record;
-  } else {
-    const r = await fetch(JSONBIN_BASE+'/b/'+rlCfg.binId,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json','X-Master-Key':rlCfg.apiKey},
-      body:JSON.stringify(data)
-    });
-    if(!r.ok) throw new Error('Schreibfehler: '+r.status);
-    return (await r.json()).record;
-  }
-}
-
-async function rlLoad() {
-  if(!rlCfg.apiKey){ rlStatus('Bitte zuerst API Key eingeben und Verbinden klicken.','err'); return; }
-  rlSpin(true);
-  rlStatus('<span class="rl-spinner"></span> Lade Rangliste...','loading');
-  try {
-    const data = await rlReadBin();
-    if(data&&data.players) rlBoard = data;
-    else rlBoard = { players:[] };
-    rlRender();
-    const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-    rlStatus('✓ Aktualisiert um '+t+' Uhr','ok');
-    document.getElementById('rl-hdr-updated').textContent = 'Stand: '+t+' Uhr';
-  } catch(e) {
-    if(!rlCfg.binId||e.message.includes('404')){ rlBoard={players:[]}; rlRender(); rlStatus('Bereit — veröffentliche deine Daten!','ok'); }
-    else rlStatus('Fehler: '+e.message,'err');
-  }
-  rlSpin(false);
-}
-
-async function rlSubmit() {
-  if(!rlCfg.apiKey){ rlStatus('Bitte zuerst verbinden.','err'); return; }
-  const name = document.getElementById('rl-name').value.trim();
-  if(!name){
-    document.getElementById('rl-name').style.borderColor='var(--accent)';
-    setTimeout(()=>document.getElementById('rl-name').style.borderColor='',700);
-    rlStatus('Bitte deinen Namen eingeben.','err'); return;
-  }
-  rlMe = name; localStorage.setItem(RL_ME_KEY, rlMe);
-  const entry = rlBuildMyEntry(name);
-  rlSpin(true);
-  rlStatus('<span class="rl-spinner"></span> Speichere...','loading');
-  try {
-    try { const latest=await rlReadBin(); if(latest&&latest.players) rlBoard=latest; } catch(e2){}
-    const idx = rlBoard.players.findIndex(p=>p.name.toLowerCase()===name.toLowerCase());
-    if(idx>=0) rlBoard.players[idx]=entry; else rlBoard.players.push(entry);
-    await rlWriteBin(rlBoard);
-    rlRender();
-    const t=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-    rlStatus('✓ Veröffentlicht um '+t+' Uhr','ok');
-    document.getElementById('rl-hdr-updated').textContent='Stand: '+t+' Uhr';
-    document.getElementById('nav-count-rangliste').textContent = rlBoard.players.length||'';
-  } catch(e){ rlStatus('Fehler: '+e.message,'err'); }
-  rlSpin(false);
+  rlSupaLoad();
+  if (authUser) rlSupaPublish();
 }
 
 function rlDeletePlayer(name) {
-  if(!confirm('Eintrag von "'+name+'" löschen?')) return;
-  rlBoard.players = rlBoard.players.filter(p=>p.name!==name);
-  rlWriteBin(rlBoard).then(()=>{ rlRender(); rlStatus('✓ Gelöscht.','ok'); }).catch(e=>rlStatus('Fehler: '+e.message,'err'));
+  if(!confirm('Eintrag löschen?')) return;
+  supa.from('leaderboard').delete().eq('user_id', authUser.id)
+    .then(({error}) => {
+      if(!error) { rlSupaLoad(); rlStatus('✓ Gelöscht.','ok'); }
+      else rlStatus('Fehler: '+error.message,'err');
+    });
 }
 
 function rlSetSort(k) {
@@ -2386,7 +2266,7 @@ function rlRender() {
   document.getElementById('nav-count-rangliste').textContent = players.length||'';
 
   if(players.length===0){
-    list.innerHTML='<div class="rl-empty"><div class="rl-empty-icon">🏆</div><p>Noch keine Einträge.<br>Veröffentliche deine Daten oben!</p></div>';
+    list.innerHTML='<div class="rl-empty"><div class="rl-empty-icon">🏆</div><p>Noch keine Einträge.<br>Lade die Seite nach dem Anmelden neu!</p></div>';
     chRender();
     return;
   }
@@ -2663,6 +2543,9 @@ function authOnSignedIn() {
     mnRenderPalaceChips(); mnRenderPalaceFilter(); mnRender(); mnRenderGlobal();
     updateNavCounts();
     startCloudSync();
+    // Auto-publish to leaderboard
+    rlSupaPublish();
+    rlStartAutoSync();
   });
 }
 
@@ -2744,10 +2627,9 @@ function startCloudSync() {
 const _localSave = save;
 save = function() {
   _localSave();
-  if (authUser) cloudSave();
+  if (authUser) { cloudSave(); rlSupaPublish(); }
 };
 
-// Syntax check before running
 // load() is now called after auth — see authOnSignedIn()
 authInit();
 if(!state.mnemo)state.mnemo={words:[],palaces:[]};
