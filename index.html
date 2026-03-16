@@ -1630,9 +1630,9 @@ function historyHTML(t) {
       const mCount = (k==='schreiben') ? (typeof e.mistakes==='number' ? e.mistakes : 0) : null;
       const mistakeWidget=(k==='schreiben')
         ?'<span style="display:inline-flex;align-items:center;gap:3px;font-family:IBM Plex Mono,monospace;font-size:9px;background:rgba(91,44,111,.08);border:1px solid rgba(91,44,111,.22);border-radius:2px;padding:1px 4px;white-space:nowrap">'+
-          '<button onclick="editMistakes('+t.id+',\''+k+'\','+e.id+',-1)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:11px;padding:0 2px;line-height:1;font-family:monospace" title="Einen Fehler entfernen">−</button>'+
+          '<button onclick="event.stopPropagation();editMistakes('+t.id+',\''+k+'\','+e.id+',-1)" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:11px;padding:0 2px;line-height:1;font-family:monospace" title="Einen Fehler entfernen">−</button>'+
           '<span style="color:var(--schreiben);min-width:14px;text-align:center">✎ '+mCount+'</span>'+
-          '<button onclick="editMistakes('+t.id+',\''+k+'\','+e.id+',1)" style="background:none;border:none;cursor:pointer;color:var(--schreiben);font-size:11px;padding:0 2px;line-height:1;font-family:monospace" title="Einen Fehler hinzufügen">+</button>'+
+          '<button onclick="event.stopPropagation();editMistakes('+t.id+',\''+k+'\','+e.id+',1)" style="background:none;border:none;cursor:pointer;color:var(--schreiben);font-size:11px;padding:0 2px;line-height:1;font-family:monospace" title="Einen Fehler hinzufügen">+</button>'+
         '</span>'
         :'';
       return '<div class="history-item '+k+(e.insight?' insight':'')+'">'+
@@ -1641,9 +1641,9 @@ function historyHTML(t) {
         mistakeWidget+
         (e.insight?'<span class="insight-badge">&#128161; Aha-Moment</span>':'')+
         '<div class="history-item-date">'+e.date+'</div>'+
-        '<button class="btn-insight'+(e.insight?' active':'')+'" onclick="toggleInsight('+t.id+',\''+k+'\','+e.id+')" title="Aha-Moment">&#128161;</button>'+
+        '<button class="btn-insight'+(e.insight?' active':'')+'" onclick="event.stopPropagation();toggleInsight('+t.id+',\''+k+'\','+e.id+')" title="Aha-Moment">&#128161;</button>'+
         wrongBtn+
-        '<button class="history-item-del" onclick="deleteEntry('+t.id+',\''+k+'\','+e.id+')">✕</button>'+
+        '<button class="history-item-del" onclick="event.stopPropagation();deleteEntry('+t.id+',\''+k+'\','+e.id+')">✕</button>'+
       '</div>';
     }).join('');
     return '<div class="history-section"><div class="history-section-label">'+TYPE_LABELS[k]+' — '+t.log[k].length+' Übung'+(t.log[k].length!==1?'en':'')+'</div>'+rows+'</div>';
