@@ -1741,58 +1741,49 @@ header { padding: 44px 0 32px; }
 #auth-screen {
   position: fixed; inset: 0; z-index: 9999;
   background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
+  display: none;
+  align-items: center; justify-content: center;
   padding: 24px;
+}
+#auth-screen::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(160,148,120,.2) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: .5;
 }
 
 .auth-card {
   position: relative;
+  z-index: 1;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 16px;
   padding: 52px 48px;
   width: min(460px, 100%);
-  animation: slideIn .35s cubic-bezier(.34,1.2,.64,1);
   box-shadow: var(--shadow-xl);
+  animation: slideIn .35s cubic-bezier(.34,1.2,.64,1);
 }
-
 .auth-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
   background: var(--accent);
-  border-radius: 12px 12px 0 0;
+  border-radius: 16px 16px 0 0;
 }
-
-.auth-eyebrow {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px; letter-spacing: 5px;
-  color: var(--accent);
-  margin-bottom: 13px;
-  display: flex; align-items: center; gap: 9px;
-  text-transform: uppercase;
-}
+.auth-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 5px; color: var(--accent); margin-bottom: 13px; display: flex; align-items: center; gap: 9px; text-transform: uppercase; }
 .auth-eyebrow::before { content: '§'; font-size: 14px; }
-
-.auth-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(36px, 6vw, 56px);
-  font-weight: 900;
-  color: var(--ink);
-  line-height: .9;
-  letter-spacing: -2.5px;
-  margin-bottom: 36px;
-}
+.auth-title { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 56px); font-weight: 900; color: var(--ink); line-height: .9; letter-spacing: -2.5px; margin-bottom: 36px; }
 .auth-title em { color: var(--accent); font-style: italic; }
-
 .auth-google-btn {
   width: 100%;
   padding: 15px 22px;
   background: var(--ink);
   color: var(--bg);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -1801,34 +1792,15 @@ header { padding: 44px 0 32px; }
   align-items: center;
   justify-content: center;
   gap: 13px;
-  transition: transform .15s, background .15s;
+  transition: all .2s;
   margin-bottom: 18px;
-  text-transform: uppercase;
-  font-weight: 600;
   box-shadow: var(--shadow-md);
+  text-transform: uppercase;
 }
-.auth-google-btn:hover { transform: translateY(-2px); background: var(--ink2); }
+.auth-google-btn:hover { background: var(--ink2); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
 .auth-google-btn svg { flex-shrink: 0; }
-
-.auth-note {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 9px;
-  color: var(--muted);
-  text-align: center;
-  line-height: 1.8;
-  margin-top: 22px;
-}
-.auth-error {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--accent);
-  background: var(--accent-glow);
-  border: 1px solid rgba(184,41,31,.25);
-  border-radius: 8px;
-  padding: 11px 16px;
-  margin-bottom: 18px;
-  display: none;
-}
+.auth-note { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--muted); text-align: center; line-height: 1.8; margin-top: 22px; }
+.auth-error { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(184,41,31,.25); border-radius: 8px; padding: 11px 16px; margin-bottom: 18px; display: none; }
 
 /* ══ USER BADGE in nav ══ */
 .nav-user { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; padding: 0 5px 0 14px; border-left: 1px solid var(--border); margin-left: 5px; }
@@ -2194,7 +2166,7 @@ header { padding: 44px 0 32px; }
 </head>
 <body>
 <!-- ══ AUTH SCREEN ══ -->
-<div id="auth-screen" style="display:none">
+<div id="auth-screen">
   <div class="auth-card">
     <div class="auth-eyebrow">DEUTSCH B1 / B2</div>
     <div class="auth-title">ÜBUNGS<br><em>TRACKER</em></div>
@@ -5173,6 +5145,7 @@ renderTagFilter(); renderFiltered();
 mnRenderPalaceChips(); mnRenderPalaceFilter(); mnRender(); mnRenderGlobal();
 updateNavCounts();
 chLoad(); chRender();
+authInit();
 </script>
 </body>
 </html>
