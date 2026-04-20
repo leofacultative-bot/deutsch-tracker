@@ -3917,19 +3917,28 @@ async function sessEnsureTables() {
 async function sessLoadSessions() {
   if (!authUser) return;
   try {
+    // Load sessions where I am host or guest (by UUID or by name)
+    const myName = sessState.myName || '';
     const { data, error } = await supa
       .from(SESS_TABLE)
       .select('*')
-      .or(`host_id.eq.${authUser.id},guest_id.eq.${authUser.id}`)
       .neq('status','closed')
       .order('created_at', { ascending: false })
-      .limit(20);
+      .limit(50);
     if (error) { console.warn('sess load', error); sessRenderFallback(); return; }
-    sessState.sessions = data || [];
 
-    // Separate pending invites (where I'm the guest and status is 'pending')
+    // Filter client-side: I'm host (by id) OR guest (by id OR by name)
+    sessState.sessions = (data || []).filter(s =>
+      s.host_id === authUser.id ||
+      s.guest_id === authUser.id ||
+      (s.guest_name && s.guest_name.toLowerCase() === myName.toLowerCase())
+    );
+
+    // Pending invites: sessions where I'm the guest and status is 'pending'
     sessState.pendingInvites = sessState.sessions.filter(s =>
-      s.guest_id === authUser.id && s.status === 'pending'
+      s.host_id !== authUser.id &&
+      s.status === 'pending' &&
+      (s.guest_id === authUser.id || (s.guest_name && s.guest_name.toLowerCase() === myName.toLowerCase()))
     );
     sessRenderLobby();
   } catch(e) { console.warn('sess load err', e); sessRenderFallback(); }
@@ -4178,17 +4187,10 @@ function sessSubscribeRoom(sessionId) {
 
 function sessSubscribeInvites() {
   if (!authUser) return;
-  // Listen for new sessions where I'm guest
-  supa.channel('invites-'+authUser.id)
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: SESS_TABLE,
-      filter: `guest_id=eq.${authUser.id}`
-    }, async () => {
-      await sessLoadSessions();
-    })
-    .subscribe();
+  // Poll for invites every 5s (name-based matching, no UUID filter needed)
+  setInterval(async () => {
+    if (authUser) await sessLoadSessions();
+  }, 5000);
 }
 
 function sessHandlePresenceSync() {
