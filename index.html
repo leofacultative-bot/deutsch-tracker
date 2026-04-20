@@ -4705,29 +4705,45 @@ let cloudSyncTimer = null;
 const CLOUD_SYNC_INTERVAL = 30000;
 
 async function authInit() {
-  // Handle OAuth redirect — Supabase puts access_token in the URL hash
-  // We must call getSession() AFTER the client has parsed the hash
-  if (window.location.hash && window.location.hash.includes('access_token')) {
-    // Give Supabase JS time to exchange the hash for a session
-    await new Promise(resolve => setTimeout(resolve, 100));
-    // Clean the hash from the URL without a page reload
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-  }
-
-  const { data: { session } } = await supa.auth.getSession();
-  if (session) { authUser = session.user; authOnSignedIn(); }
-  else { document.getElementById('auth-screen').style.display = 'flex'; }
+  // Supabase JS v2 automatically detects the #access_token hash fragment
+  // when the client is first created and exchanges it for a session.
+  // We register onAuthStateChange FIRST so we never miss the SIGNED_IN event.
+  let resolved = false;
 
   supa.auth.onAuthStateChange((_event, session) => {
-    if (session) { authUser = session.user; authOnSignedIn(); }
-    else { authUser = null; authOnSignedOut(); }
+    if (session) {
+      authUser = session.user;
+      resolved = true;
+      // Clean the ugly hash from the URL bar after Supabase is done with it
+      if (window.location.hash && window.location.hash.includes('access_token')) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      authOnSignedIn();
+    } else {
+      authUser = null;
+      if (resolved) authOnSignedOut();
+    }
   });
+
+  // Fallback: for users with an existing session (no redirect happening)
+  // onAuthStateChange fires async, so wait briefly then check directly
+  await new Promise(r => setTimeout(r, 400));
+  if (!resolved) {
+    const { data: { session } } = await supa.auth.getSession();
+    if (session) {
+      authUser = session.user;
+      resolved = true;
+      authOnSignedIn();
+    } else {
+      document.getElementById('auth-screen').style.display = 'flex';
+    }
+  }
 }
 
 async function authSignInGoogle() {
   const { error } = await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://leofacultative-bot.github.io/deutsch-tracker/' }
+    options: { redirectTo: window.location.origin + window.location.pathname }
   });
   if (error) {
     const el = document.getElementById('auth-error');
