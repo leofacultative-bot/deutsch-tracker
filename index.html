@@ -2609,7 +2609,7 @@ header { padding: 44px 0 32px; }
             <div id="sess-ocr-overlay" style="display:none;position:absolute;inset:0;background:var(--surface);overflow-y:auto;padding:24px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.7;color:var(--ink)"></div>
           </div>
           <!-- PDF pagination -->
-          <div id="sess-pdf-nav" style="display:none;padding:8px 16px;background:var(--surface2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px">
+          <div id="sess-pdf-nav" style="display:none;padding:8px 16px;background:var(--surface2);border-top:1px solid var(--border);align-items:center;justify-content:center;gap:12px">
             <button class="sess-timer-btn" onclick="sessPdfPage(-1)">◀</button>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)" id="sess-pdf-page-label">1 / 1</span>
             <button class="sess-timer-btn" onclick="sessPdfPage(1)">▶</button>
@@ -4475,9 +4475,15 @@ async function sessRenderPDF(dataURL) {
     sessPdfRenderPage(1);
   } catch(e) {
     document.getElementById('sess-doc-placeholder').style.display = 'none';
-    // Fallback: show as object
-    const viewer = document.getElementById('sess-doc-viewer');
-    viewer.innerHTML = `<iframe src="${dataURL}" style="width:100%;height:500px;border:none;"></iframe>`;
+    // Fallback: show as iframe without destroying the viewer's child elements
+    const existing = document.getElementById('sess-pdf-iframe');
+    if (!existing) {
+      const iframe = document.createElement('iframe');
+      iframe.id = 'sess-pdf-iframe';
+      iframe.style.cssText = 'width:100%;height:500px;border:none;';
+      iframe.src = dataURL;
+      document.getElementById('sess-doc-viewer').appendChild(iframe);
+    }
   }
 }
 
