@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
 <title>Deutsch Übungs-Tracker — B1/B2</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
@@ -4704,9 +4705,19 @@ let cloudSyncTimer = null;
 const CLOUD_SYNC_INTERVAL = 30000;
 
 async function authInit() {
+  // Handle OAuth redirect — Supabase puts access_token in the URL hash
+  // We must call getSession() AFTER the client has parsed the hash
+  if (window.location.hash && window.location.hash.includes('access_token')) {
+    // Give Supabase JS time to exchange the hash for a session
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // Clean the hash from the URL without a page reload
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+  }
+
   const { data: { session } } = await supa.auth.getSession();
   if (session) { authUser = session.user; authOnSignedIn(); }
   else { document.getElementById('auth-screen').style.display = 'flex'; }
+
   supa.auth.onAuthStateChange((_event, session) => {
     if (session) { authUser = session.user; authOnSignedIn(); }
     else { authUser = null; authOnSignedOut(); }
@@ -4716,7 +4727,7 @@ async function authInit() {
 async function authSignInGoogle() {
   const { error } = await supa.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: 'https://leofacultative-bot.github.io/deutsch-tracker' }
+    options: { redirectTo: 'https://leofacultative-bot.github.io/deutsch-tracker/' }
   });
   if (error) {
     const el = document.getElementById('auth-error');
