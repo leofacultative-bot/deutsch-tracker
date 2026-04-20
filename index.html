@@ -2044,6 +2044,106 @@ header { padding: 44px 0 32px; }
   #sess-room > div:last-of-type { grid-template-columns: 1fr !important; }
   .sess-p-name { max-width: 80px; }
 }
+/* ══ VOICE CALL STYLES ══ */
+.call-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-sm);
+}
+.call-btn-start {
+  background: var(--green);
+  color: #fff;
+}
+.call-btn-start:hover { background: #245a41; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.call-btn-end {
+  background: var(--accent);
+  color: #fff;
+}
+.call-btn-end:hover { background: #961f17; transform: translateY(-1px); }
+.call-btn-mute {
+  background: var(--surface2);
+  color: var(--ink);
+  border: 1px solid var(--border2);
+}
+.call-btn-mute:hover { background: var(--border); }
+.call-btn-mute.muted {
+  background: var(--orange);
+  color: #fff;
+  border-color: var(--orange);
+}
+
+.call-status-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+.call-status-badge.ringing {
+  background: rgba(166,124,0,.1);
+  color: var(--gold);
+  border-color: rgba(166,124,0,.3);
+}
+.call-status-badge.incoming {
+  background: rgba(45,106,79,.1);
+  color: var(--green);
+  border-color: rgba(45,106,79,.3);
+  animation: callPulse .6s ease-in-out infinite;
+}
+.call-status-badge.active {
+  background: rgba(45,106,79,.08);
+  color: var(--green);
+  border-color: rgba(45,106,79,.25);
+}
+
+.call-ring-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: callPulse .7s ease-in-out infinite;
+  display: inline-block;
+}
+.call-live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: callPulse 1.2s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes callPulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.4; transform:scale(.85); }
+}
+
+/* Volume bars (mic activity indicator) */
+.call-mic-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+.call-mic-bar {
+  width: 3px;
+  background: var(--green);
+  border-radius: 1px;
+  transition: height .1s;
+}
 </style>
 </head>
 <body>
@@ -2389,7 +2489,45 @@ header { padding: 44px 0 32px; }
           <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--muted);margin-bottom:4px">AKTIVE SESSION</div>
           <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-0.5px" id="sess-room-title">—</div>
         </div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <!-- VOICE CALL PANEL -->
+          <div id="call-panel" style="display:flex;align-items:center;gap:8px">
+            <!-- Idle: Start call -->
+            <div id="call-idle">
+              <button class="call-btn call-btn-start" onclick="callStart()" title="Sprachanruf starten">
+                <span class="call-icon">📞</span> ANRUFEN
+              </button>
+            </div>
+            <!-- Ringing state (outgoing) -->
+            <div id="call-ringing" style="display:none;align-items:center;gap:8px">
+              <div class="call-status-badge ringing">
+                <span class="call-ring-dot"></span> KLINGELT...
+              </div>
+              <button class="call-btn call-btn-end" onclick="callHangup()">✕ ABBRECHEN</button>
+            </div>
+            <!-- Incoming state -->
+            <div id="call-incoming" style="display:none;align-items:center;gap:8px">
+              <div class="call-status-badge incoming">
+                📞 EINGEHEND
+              </div>
+              <button class="call-btn call-btn-start" onclick="callAnswer()">✓ ANNEHMEN</button>
+              <button class="call-btn call-btn-end" onclick="callReject()">✕ ABLEHNEN</button>
+            </div>
+            <!-- Active call -->
+            <div id="call-active" style="display:none;align-items:center;gap:8px">
+              <div class="call-status-badge active">
+                <span class="call-live-dot"></span>
+                <span id="call-duration">00:00</span>
+              </div>
+              <button class="call-btn call-btn-mute" id="call-mute-btn" onclick="callToggleMute()" title="Mikrofon">
+                🎤 STUMM
+              </button>
+              <button class="call-btn call-btn-end" onclick="callHangup()">📵 AUFLEGEN</button>
+            </div>
+          </div>
+          <!-- hidden audio element for remote stream -->
+          <audio id="call-remote-audio" autoplay playsinline></audio>
+
           <div class="rl-autosync-badge" id="sess-conn-badge">
             <span class="rl-sync-dot" id="sess-conn-dot"></span>
             <span id="sess-conn-label">VERBINDE...</span>
@@ -4661,8 +4799,303 @@ save = function() {
   if (authUser) { cloudSave(); rlSupaPublish(); }
 };
 
-// ── INIT ──
-authInit();
+// ──────────────────────────────────────────────────────────────────
+// WEBRTC VOICE CALL SYSTEM
+// Signaling via Supabase Realtime broadcast (same session channel)
+// ──────────────────────────────────────────────────────────────────
+
+const call = {
+  pc: null,           // RTCPeerConnection
+  localStream: null,  // MediaStream (mic)
+  state: 'idle',      // idle | ringing | incoming | active
+  isCaller: false,
+  muted: false,
+  durationInterval: null,
+  durationSec: 0,
+  remoteUserId: null,
+  iceCandidatesBuffer: [], // buffer ICE candidates until remote desc is set
+};
+
+const RTC_CONFIG = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    // Free TURN relay as fallback (helps behind strict NAT)
+    { urls: 'turn:openrelay.metered.ca:80',  username: 'openrelayproject', credential: 'openrelayproject' },
+    { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+  ]
+};
+
+// ── State transitions ──────────────────────────────────────────────
+function callSetState(s) {
+  call.state = s;
+  document.getElementById('call-idle').style.display     = s === 'idle'     ? 'flex' : 'none';
+  document.getElementById('call-ringing').style.display  = s === 'ringing'  ? 'flex' : 'none';
+  document.getElementById('call-incoming').style.display = s === 'incoming' ? 'flex' : 'none';
+  document.getElementById('call-active').style.display   = s === 'active'   ? 'flex' : 'none';
+}
+
+// ── Get microphone ─────────────────────────────────────────────────
+async function callGetMic() {
+  try {
+    call.localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    return true;
+  } catch(e) {
+    sessSysMsg('⚠ Mikrofon-Zugriff verweigert. Bitte erlaube den Zugriff im Browser.');
+    return false;
+  }
+}
+
+// ── Create RTCPeerConnection ──────────────────────────────────────
+function callCreatePC() {
+  if (call.pc) { call.pc.close(); call.pc = null; }
+  call.iceCandidatesBuffer = [];
+
+  const pc = new RTCPeerConnection(RTC_CONFIG);
+  call.pc = pc;
+
+  // Add local tracks
+  if (call.localStream) {
+    call.localStream.getTracks().forEach(t => pc.addTrack(t, call.localStream));
+  }
+
+  // Receive remote audio
+  pc.ontrack = (e) => {
+    const audio = document.getElementById('call-remote-audio');
+    if (audio.srcObject !== e.streams[0]) {
+      audio.srcObject = e.streams[0];
+    }
+  };
+
+  // Send ICE candidates via Supabase signaling
+  pc.onicecandidate = (e) => {
+    if (e.candidate && sessState.channel) {
+      sessState.channel.send({
+        type: 'broadcast', event: 'call-signal',
+        payload: { kind: 'ice', candidate: e.candidate.toJSON(), from: authUser.id }
+      });
+    }
+  };
+
+  pc.oniceconnectionstatechange = () => {
+    console.log('ICE state:', pc.iceConnectionState);
+    if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+      callOnConnected();
+    } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+      sessSysMsg('📵 Verbindung unterbrochen. Versuche erneut.');
+      callSetState('idle');
+      callStopDuration();
+    }
+  };
+
+  return pc;
+}
+
+// ── CALLER: Start call ────────────────────────────────────────────
+async function callStart() {
+  if (!sessState.channel) { sessSysMsg('⚠ Kein aktiver Kanal. Öffne zuerst eine Session.'); return; }
+  if (!(await callGetMic())) return;
+
+  call.isCaller = true;
+  callSetState('ringing');
+  sessSysMsg('📞 Anruf wird gestartet...');
+
+  const pc = callCreatePC();
+
+  // Create offer
+  const offer = await pc.createOffer({ offerToReceiveAudio: true });
+  await pc.setLocalDescription(offer);
+
+  // Signal to partner
+  sessState.channel.send({
+    type: 'broadcast', event: 'call-signal',
+    payload: { kind: 'offer', sdp: offer.sdp, from: authUser.id, fromName: sessState.myName }
+  });
+
+  // Timeout after 45s if no answer
+  call._ringTimeout = setTimeout(() => {
+    if (call.state === 'ringing') {
+      callHangup();
+      sessSysMsg('📵 Keine Antwort.');
+    }
+  }, 45000);
+}
+
+// ── CALLEE: Answer ───────────────────────────────────────────────
+async function callAnswer() {
+  if (!(await callGetMic())) return;
+
+  const pc = callCreatePC();
+  callSetState('active'); // Show active state immediately (before ICE completes)
+  callStartDuration();
+
+  // Apply buffered offer (stored during onSignal)
+  if (call._pendingOffer) {
+    await pc.setRemoteDescription(new RTCSessionDescription({ type: 'offer', sdp: call._pendingOffer }));
+    call._pendingOffer = null;
+  }
+
+  // Flush buffered ICE candidates
+  for (const c of call.iceCandidatesBuffer) {
+    try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
+  }
+  call.iceCandidatesBuffer = [];
+
+  // Create answer
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+
+  sessState.channel.send({
+    type: 'broadcast', event: 'call-signal',
+    payload: { kind: 'answer', sdp: answer.sdp, from: authUser.id }
+  });
+
+  sessSysMsg('📞 Anruf verbunden.');
+}
+
+// ── CALLEE: Reject ───────────────────────────────────────────────
+function callReject() {
+  sessState.channel?.send({
+    type: 'broadcast', event: 'call-signal',
+    payload: { kind: 'reject', from: authUser.id }
+  });
+  callCleanup();
+  sessSysMsg('📵 Anruf abgelehnt.');
+}
+
+// ── Either side: Hangup ──────────────────────────────────────────
+function callHangup() {
+  sessState.channel?.send({
+    type: 'broadcast', event: 'call-signal',
+    payload: { kind: 'hangup', from: authUser.id }
+  });
+  callCleanup();
+  sessSysMsg('📵 Anruf beendet.');
+}
+
+function callCleanup() {
+  if (call._ringTimeout) { clearTimeout(call._ringTimeout); call._ringTimeout = null; }
+  callStopDuration();
+  if (call.pc) { call.pc.close(); call.pc = null; }
+  if (call.localStream) { call.localStream.getTracks().forEach(t => t.stop()); call.localStream = null; }
+  const audio = document.getElementById('call-remote-audio');
+  if (audio) { audio.srcObject = null; }
+  call.muted = false;
+  call.isCaller = false;
+  call._pendingOffer = null;
+  callSetState('idle');
+  const muteBtn = document.getElementById('call-mute-btn');
+  if (muteBtn) { muteBtn.textContent = '🎤 STUMM'; muteBtn.classList.remove('muted'); }
+}
+
+// ── Mute/unmute ──────────────────────────────────────────────────
+function callToggleMute() {
+  if (!call.localStream) return;
+  call.muted = !call.muted;
+  call.localStream.getAudioTracks().forEach(t => { t.enabled = !call.muted; });
+  const btn = document.getElementById('call-mute-btn');
+  if (btn) {
+    btn.textContent = call.muted ? '🔇 STUMMGESCHALTET' : '🎤 STUMM';
+    btn.classList.toggle('muted', call.muted);
+  }
+  sessSysMsg(call.muted ? '🔇 Du bist stummgeschaltet.' : '🎤 Mikrofon aktiv.');
+}
+
+// ── Called when ICE actually connects ──────────────────────────────
+function callOnConnected() {
+  if (call.state !== 'active') {
+    callSetState('active');
+    callStartDuration();
+    sessSysMsg('📞 Anruf verbunden.');
+  }
+}
+
+// ── Duration timer ──────────────────────────────────────────────
+function callStartDuration() {
+  callStopDuration();
+  call.durationSec = 0;
+  call.durationInterval = setInterval(() => {
+    call.durationSec++;
+    const m = String(Math.floor(call.durationSec / 60)).padStart(2,'0');
+    const s = String(call.durationSec % 60).padStart(2,'0');
+    const el = document.getElementById('call-duration');
+    if (el) el.textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+function callStopDuration() {
+  if (call.durationInterval) { clearInterval(call.durationInterval); call.durationInterval = null; }
+}
+
+// ── Signaling handler — hook into sessSubscribeRoom ───────────────
+const _origSessSubscribeRoom = sessSubscribeRoom;
+sessSubscribeRoom = function(sessionId) {
+  _origSessSubscribeRoom(sessionId);
+  // Attach call-signal listener after channel is created
+  // (channel is set synchronously; we patch right after)
+  setTimeout(() => {
+    if (sessState.channel) {
+      sessState.channel.on('broadcast', { event: 'call-signal' }, ({ payload }) => {
+        callHandleSignal(payload);
+      });
+    }
+  }, 200);
+};
+
+async function callHandleSignal(p) {
+  if (!p || p.from === authUser.id) return; // ignore own signals
+
+  if (p.kind === 'offer') {
+    // Incoming call
+    call._pendingOffer = p.sdp;
+    call.iceCandidatesBuffer = [];
+    callSetState('incoming');
+    sessSysMsg(`📞 Eingehender Anruf von ${esc(p.fromName||'Partner')}...`);
+    // Browser notification if tab not focused
+    if (document.hidden && 'Notification' in window && Notification.permission === 'granted') {
+      new Notification('Eingehender Anruf 📞', { body: `${p.fromName||'Partner'} ruft an` });
+    }
+  } else if (p.kind === 'answer') {
+    // Caller receives answer
+    if (call.pc && call.pc.signalingState === 'have-local-offer') {
+      await call.pc.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: p.sdp }));
+      // Flush buffered ICE
+      for (const c of call.iceCandidatesBuffer) {
+        try { await call.pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
+      }
+      call.iceCandidatesBuffer = [];
+      if (call._ringTimeout) { clearTimeout(call._ringTimeout); call._ringTimeout = null; }
+      callSetState('active');
+      callStartDuration();
+      sessSysMsg('📞 Anruf verbunden.');
+    }
+  } else if (p.kind === 'ice') {
+    // Add ICE candidate
+    if (call.pc && call.pc.remoteDescription) {
+      try { await call.pc.addIceCandidate(new RTCIceCandidate(p.candidate)); } catch(e) {}
+    } else {
+      call.iceCandidatesBuffer.push(p.candidate);
+    }
+  } else if (p.kind === 'reject') {
+    callCleanup();
+    sessSysMsg('📵 Anruf abgelehnt.');
+  } else if (p.kind === 'hangup') {
+    callCleanup();
+    sessSysMsg('📵 Partner hat aufgelegt.');
+  }
+}
+
+// ── Clean up call when leaving room ──────────────────────────────
+const _origSessLeaveRoom = sessLeaveRoom;
+sessLeaveRoom = function() {
+  if (call.state !== 'idle') callHangup();
+  _origSessLeaveRoom();
+};
+
+// Request notification permission on page load (nice to have)
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
 if(!state.mnemo)state.mnemo={words:[],palaces:[]};
 renderTagFilter(); renderFiltered();
 mnRenderPalaceChips(); mnRenderPalaceFilter(); mnRender(); mnRenderGlobal();
