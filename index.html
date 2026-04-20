@@ -1736,137 +1736,42 @@ header { padding: 44px 0 32px; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-@keyframes neonPulse {
-  0%,100% { opacity: 1; }
-  50%      { opacity: 0.6; }
-}
-@keyframes scanline {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-@keyframes cardGlow {
-  0%,100% { box-shadow: 0 0 30px 4px rgba(0,0,0,.8), 0 0 60px 8px rgba(220,0,0,.3), inset 0 0 30px rgba(0,0,0,.5); }
-  33%     { box-shadow: 0 0 30px 4px rgba(0,0,0,.8), 0 0 60px 8px rgba(255,206,0,.3), inset 0 0 30px rgba(0,0,0,.5); }
-  66%     { box-shadow: 0 0 30px 4px rgba(0,0,0,.8), 0 0 60px 8px rgba(80,80,80,.5),  inset 0 0 30px rgba(0,0,0,.5); }
-}
-@keyframes stripeShift {
-  0%   { background-position: 0 0; }
-  100% { background-position: 60px 0; }
-}
-@keyframes titleGlow {
-  0%,100% { text-shadow: 0 0 10px #DC0000, 0 0 20px #DC0000, 0 0 40px #DC0000; color: #fff; }
-  33%     { text-shadow: 0 0 10px #FFCE00, 0 0 20px #FFCE00, 0 0 40px #FFCE00; color: #fff; }
-  66%     { text-shadow: 0 0 10px #aaa, 0 0 20px #ccc, 0 0 40px #fff; color: #fff; }
-}
-@keyframes btnRGB {
-  0%   { background: linear-gradient(135deg, #DC0000 0%, #990000 100%); box-shadow: 0 0 20px rgba(220,0,0,.8), 0 4px 15px rgba(0,0,0,.5); }
-  33%  { background: linear-gradient(135deg, #FFCE00 0%, #cc9900 100%); box-shadow: 0 0 20px rgba(255,206,0,.8), 0 4px 15px rgba(0,0,0,.5); }
-  66%  { background: linear-gradient(135deg, #333 0%, #111 100%);       box-shadow: 0 0 20px rgba(180,180,180,.5), 0 4px 15px rgba(0,0,0,.5); }
-  100% { background: linear-gradient(135deg, #DC0000 0%, #990000 100%); box-shadow: 0 0 20px rgba(220,0,0,.8), 0 4px 15px rgba(0,0,0,.5); }
-}
+
 
 #auth-screen {
   position: fixed; inset: 0; z-index: 9999;
-  background: #0a0a0a;
+  background: var(--bg);
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
-  overflow: hidden;
-}
-
-/* Animated RGB background — diagonal German flag stripes cycling */
-#auth-screen::before {
-  content: '';
-  position: fixed; inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    -55deg,
-    #1a0000 0px,   #DC0000 10px,  #DC0000 14px,
-    #111    14px,  #111    34px,
-    #221a00 34px,  #FFCE00 44px,  #FFCE00 48px,
-    #111    48px,  #111    68px,
-    #0d0d0d 68px,  #333    78px,  #333    82px,
-    #111    82px,  #111    102px
-  );
-  background-size: 120px 120px;
-  animation: stripeShift 2.5s linear infinite;
-  opacity: 0.18;
-}
-
-/* Scanline sweep */
-#auth-screen::after {
-  content: '';
-  position: fixed;
-  left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(255,206,0,.6), rgba(220,0,0,.6), transparent);
-  animation: scanline 3.5s linear infinite;
-  pointer-events: none;
-  z-index: 0;
 }
 
 .auth-card {
   position: relative;
-  z-index: 1;
-  background: rgba(8, 8, 8, 0.92);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 52px 48px;
   width: min(460px, 100%);
-  animation: slideIn .35s cubic-bezier(.34,1.2,.64,1), cardGlow 4s ease-in-out infinite;
-  backdrop-filter: blur(12px);
-  overflow: hidden;
+  animation: slideIn .35s cubic-bezier(.34,1.2,.64,1);
+  box-shadow: var(--shadow-xl);
 }
 
-/* Top RGB stripe bar on the card — 3 bands like the flag */
 .auth-card::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 5px;
-  background: linear-gradient(90deg,
-    #1a1a1a 0%,   #1a1a1a 33%,
-    #DC0000 33%,  #DC0000 66%,
-    #FFCE00 66%,  #FFCE00 100%
-  );
-  background-size: 200% 100%;
-  animation: rgbSweep 3s ease-in-out infinite;
-}
-
-/* Bottom RGB stripe */
-.auth-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg,
-    #FFCE00 0%,  #FFCE00 33%,
-    #DC0000 33%, #DC0000 66%,
-    #1a1a1a 66%, #1a1a1a 100%
-  );
-  background-size: 200% 100%;
-  animation: rgbSweep 3s ease-in-out infinite reverse;
+  background: var(--accent);
+  border-radius: 12px 12px 0 0;
 }
-
-/* Vertical neon side accents */
-.auth-card .rgb-left,
-.auth-card .rgb-right {
-  position: absolute;
-  top: 5px; bottom: 3px;
-  width: 3px;
-  background: linear-gradient(180deg, #1a1a1a 0%, #DC0000 40%, #FFCE00 100%);
-  animation: neonPulse 2s ease-in-out infinite;
-}
-.auth-card .rgb-left  { left: 0; }
-.auth-card .rgb-right { right: 0; animation-delay: .5s; }
 
 .auth-eyebrow {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px; letter-spacing: 5px;
-  color: #FFCE00;
+  color: var(--accent);
   margin-bottom: 13px;
   display: flex; align-items: center; gap: 9px;
   text-transform: uppercase;
-  text-shadow: 0 0 8px rgba(255,206,0,.8);
 }
 .auth-eyebrow::before { content: '§'; font-size: 14px; }
 
@@ -1874,20 +1779,20 @@ header { padding: 44px 0 32px; }
   font-family: 'Playfair Display', serif;
   font-size: clamp(36px, 6vw, 56px);
   font-weight: 900;
-  color: #ffffff;
+  color: var(--ink);
   line-height: .9;
   letter-spacing: -2.5px;
   margin-bottom: 36px;
-  animation: titleGlow 4s ease-in-out infinite;
 }
-.auth-title em { color: #DC0000; font-style: italic; }
+.auth-title em { color: var(--accent); font-style: italic; }
 
 .auth-google-btn {
   width: 100%;
   padding: 15px 22px;
-  color: #fff;
+  background: var(--ink);
+  color: var(--bg);
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
   font-size: 11px;
@@ -1896,19 +1801,19 @@ header { padding: 44px 0 32px; }
   align-items: center;
   justify-content: center;
   gap: 13px;
-  transition: transform .15s;
+  transition: transform .15s, background .15s;
   margin-bottom: 18px;
   text-transform: uppercase;
   font-weight: 600;
-  animation: btnRGB 4s ease-in-out infinite;
+  box-shadow: var(--shadow-md);
 }
-.auth-google-btn:hover { transform: translateY(-2px) scale(1.01); filter: brightness(1.15); }
+.auth-google-btn:hover { transform: translateY(-2px); background: var(--ink2); }
 .auth-google-btn svg { flex-shrink: 0; }
 
 .auth-note {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 9px;
-  color: rgba(255,255,255,.35);
+  color: var(--muted);
   text-align: center;
   line-height: 1.8;
   margin-top: 22px;
@@ -1916,9 +1821,9 @@ header { padding: 44px 0 32px; }
 .auth-error {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
-  color: #FFCE00;
-  background: rgba(255,206,0,.08);
-  border: 1px solid rgba(255,206,0,.3);
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid rgba(184,41,31,.25);
   border-radius: 8px;
   padding: 11px 16px;
   margin-bottom: 18px;
@@ -2291,8 +2196,6 @@ header { padding: 44px 0 32px; }
 <!-- ══ AUTH SCREEN ══ -->
 <div id="auth-screen">
   <div class="auth-card">
-    <div class="rgb-left"></div>
-    <div class="rgb-right"></div>
     <div class="auth-eyebrow">DEUTSCH B1 / B2</div>
     <div class="auth-title">ÜBUNGS<br><em>TRACKER</em></div>
     <div id="auth-error" class="auth-error"></div>
