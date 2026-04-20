@@ -4878,9 +4878,56 @@ const RTC_CONFIG = {
   ]
 };
 
-// ── State transitions ──────────────────────────────────────────────
+// ── Ringing sound via Web Audio API ──────────────────────────────
+const ring = (() => {
+  let ctx = null, gainNode = null, interval = null, active = false;
+
+  function getCtx() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    return ctx;
+  }
+
+  function beep(freq, duration, startTime) {
+    const c = getCtx();
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.connect(g); g.connect(c.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, startTime);
+    g.gain.setValueAtTime(0, startTime);
+    g.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
+    g.gain.linearRampToValueAtTime(0, startTime + duration);
+    osc.start(startTime);
+    osc.stop(startTime + duration + 0.05);
+  }
+
+  function playRingOnce() {
+    const c = getCtx();
+    const t = c.currentTime;
+    // Classic double-ring: two short tones
+    beep(480, 0.4, t);
+    beep(620, 0.4, t);
+    beep(480, 0.4, t + 0.45);
+    beep(620, 0.4, t + 0.45);
+  }
+
+  return {
+    start() {
+      if (active) return;
+      active = true;
+      playRingOnce();
+      interval = setInterval(playRingOnce, 3000);
+    },
+    stop() {
+      active = false;
+      if (interval) { clearInterval(interval); interval = null; }
+    }
+  };
+})();
 function callSetState(s) {
   call.state = s;
+  if (s === 'ringing' || s === 'incoming') ring.start();
+  else ring.stop();
   document.getElementById('call-idle').style.display     = s === 'idle'     ? 'flex' : 'none';
   document.getElementById('call-ringing').style.display  = s === 'ringing'  ? 'flex' : 'none';
   document.getElementById('call-incoming').style.display = s === 'incoming' ? 'flex' : 'none';
