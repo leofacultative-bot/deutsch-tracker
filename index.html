@@ -1876,6 +1876,174 @@ header { padding: 44px 0 32px; }
   .mnemo-stats { grid-template-columns: repeat(2, 1fr); }
   h1 { font-size: 34px; }
 }
+
+/* ══ SESSION STYLES ══ */
+.nav-tab.session-tab { color: var(--blue); }
+.nav-tab.session-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.session-live-dot { color: var(--green) !important; animation: sessPulse .9s ease-in-out infinite; font-size: 10px !important; }
+@keyframes sessPulse { 0%,100%{opacity:1}50%{opacity:.3} }
+
+.sess-timer-display {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--ink);
+  letter-spacing: -1px;
+  line-height: 1;
+  transition: color .3s;
+}
+.sess-timer-display.running { color: var(--blue); }
+.sess-timer-display.paused  { color: var(--orange); }
+
+.sess-timer-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.sess-timer-btn:hover { border-color: var(--ink); color: var(--ink); }
+.sess-timer-btn.green { background: var(--blue); color: var(--bg); border-color: var(--blue); }
+.sess-timer-btn.green:hover { background: #1A3D6A; }
+.sess-timer-btn.red { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.sess-participant-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-width: 0;
+}
+.sess-participant-card.sess-you { border-color: var(--blue); background: var(--blue-glow); }
+
+.sess-p-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid var(--border);
+}
+.sess-you .sess-p-avatar { border-color: var(--blue); }
+.sess-p-name { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+.sess-p-status { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--muted); margin-top: 1px; }
+.sess-p-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 7px;
+  letter-spacing: 2px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--blue-glow);
+  color: var(--blue);
+  border: 1px solid rgba(26,74,122,.3);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.sess-p-badge-guest { background: rgba(166,124,0,.1); color: var(--gold); border-color: rgba(166,124,0,.3); }
+
+.sess-session-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s;
+  animation: slideIn .2s ease;
+}
+.sess-session-card:hover { box-shadow: var(--shadow-md); }
+.sess-session-card.active-room { border-color: var(--blue); border-left: 3px solid var(--blue); }
+.sess-session-card.pending { border-left: 3px solid var(--gold); }
+
+.sess-invite-card {
+  background: rgba(26,74,122,.04);
+  border: 1px solid rgba(26,74,122,.25);
+  border-left: 3px solid var(--blue);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  animation: slideIn .2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.sess-upload-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sess-upload-btn:hover { border-color: var(--ink); color: var(--ink); background: var(--bg); }
+
+.sess-chat-msg {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 12px;
+  line-height: 1.4;
+  max-width: 90%;
+  word-break: break-word;
+}
+.sess-chat-msg.me { background: var(--blue); color: #fff; align-self: flex-end; border-radius: 8px 8px 0 8px; }
+.sess-chat-msg.them { background: var(--surface2); color: var(--ink); border-radius: 8px 8px 8px 0; }
+.sess-chat-msg.system { background: transparent; color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 9px; align-self: center; border: 1px dashed var(--border); }
+.sess-chat-name { font-family: 'IBM Plex Mono', monospace; font-size: 8px; color: var(--muted); margin-bottom: 1px; }
+
+.sess-player-opt {
+  padding: 10px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.sess-player-opt:last-child { border-bottom: none; }
+.sess-player-opt:hover { background: var(--surface2); }
+.sess-player-opt-rank { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); width: 24px; text-align: center; }
+.sess-player-opt-score { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--blue); margin-left: auto; }
+
+@media (max-width: 768px) {
+  #sess-room > div:last-of-type { grid-template-columns: 1fr !important; }
+  .sess-p-name { max-width: 80px; }
+}
 </style>
 </head>
 <body>
@@ -1910,6 +2078,9 @@ header { padding: 44px 0 32px; }
     </button>
     <button class="nav-tab rangliste-tab" id="nav-rangliste" onclick="switchScreen('rangliste')">
       RANGLISTE <span class="nav-tab-count" id="nav-count-rangliste"></span>
+    </button>
+    <button class="nav-tab session-tab" id="nav-session" onclick="switchScreen('session')">
+      ⚡ SESSION <span class="nav-tab-count session-live-dot" id="nav-count-session" style="display:none">●</span>
     </button>
     <div class="nav-sync" id="nav-sync" style="display:none">
       <span class="nav-sync-dot" id="nav-sync-dot"></span>
@@ -2165,6 +2336,157 @@ header { padding: 44px 0 32px; }
       </div>
     </div>
   </div><!-- /screen-rangliste -->
+
+  <!-- ══ SCREEN: SESSION ══ -->
+  <div class="screen" id="screen-session">
+    <!-- LOBBY VIEW -->
+    <div id="sess-lobby">
+      <div class="rl-header" style="padding-bottom:28px">
+        <div class="eyebrow">ECHTZEIT — DUELL-MODUS</div>
+        <h1>LERN<br><em style="color:var(--blue)">SESSION</em></h1>
+        <div class="header-sub">Lade einen Mitspieler ein · Teilt ein Dokument · Timer synchronisiert</div>
+      </div>
+
+      <div id="sess-status-bar" class="rl-status" style="display:none"></div>
+
+      <!-- CREATE SESSION -->
+      <div class="rl-entry-panel" style="border-left-color:var(--blue)">
+        <div class="section-label">NEUE SESSION STARTEN</div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:flex-end;margin-bottom:16px">
+          <div>
+            <div class="rl-input-label">GEGNER AUS RANGLISTE EINLADEN</div>
+            <div style="position:relative">
+              <input class="add-input" id="sess-invite-input" type="text" placeholder="Namen eintippen oder unten auswählen..." oninput="sessFilterPlayers(this.value)" autocomplete="off">
+              <div id="sess-player-dropdown" style="position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;z-index:100;display:none;box-shadow:var(--shadow-md)"></div>
+            </div>
+          </div>
+          <button class="btn btn-ink" style="background:var(--blue);white-space:nowrap" onclick="sessCreate()">⚡ SESSION ERSTELLEN</button>
+        </div>
+        <div id="sess-online-players" style="margin-top:12px"></div>
+      </div>
+
+      <!-- OPEN INVITATIONS -->
+      <div id="sess-invites-section" style="display:none">
+        <div class="section-label" style="margin-top:24px">EINGEHENDE EINLADUNGEN</div>
+        <div id="sess-invites-list"></div>
+      </div>
+
+      <!-- MY SESSIONS -->
+      <div class="section-label" style="margin-top:24px">MEINE SESSIONS</div>
+      <div id="sess-my-list">
+        <div class="rl-empty" style="border-style:dashed">
+          <div class="rl-empty-icon">⚡</div>
+          <p>Noch keine Sessions.<br>Starte eine Session oben oder lade jemanden aus der Rangliste ein.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROOM VIEW -->
+    <div id="sess-room" style="display:none">
+      <!-- TOP BAR -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 0 12px;border-bottom:2px solid var(--ink);margin-bottom:0;flex-wrap:wrap;gap:10px">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--muted);margin-bottom:4px">AKTIVE SESSION</div>
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--ink);letter-spacing:-0.5px" id="sess-room-title">—</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="rl-autosync-badge" id="sess-conn-badge">
+            <span class="rl-sync-dot" id="sess-conn-dot"></span>
+            <span id="sess-conn-label">VERBINDE...</span>
+          </div>
+          <button class="btn btn-ghost" style="font-size:10px;padding:7px 14px" onclick="sessLeaveRoom()">← VERLASSEN</button>
+        </div>
+      </div>
+
+      <!-- PARTICIPANTS BAR -->
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:center">
+        <div id="sess-p1-card" class="sess-participant-card sess-you">
+          <div class="sess-p-avatar" id="sess-p1-avatar">?</div>
+          <div>
+            <div class="sess-p-name" id="sess-p1-name">Du</div>
+            <div class="sess-p-status" id="sess-p1-status">●  Online</div>
+          </div>
+          <div class="sess-p-badge" id="sess-p1-badge">HOST</div>
+        </div>
+        <!-- TIMER CENTER -->
+        <div style="text-align:center">
+          <div class="sess-timer-display" id="sess-timer">00:00:00</div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:8px">
+            <button class="sess-timer-btn green" id="sess-timer-start" onclick="sessTimerToggle()">▶ START</button>
+            <button class="sess-timer-btn" onclick="sessTimerReset()">↺ RESET</button>
+          </div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);margin-top:5px;letter-spacing:2px" id="sess-timer-label">SYNCHRONISIERT</div>
+        </div>
+        <div id="sess-p2-card" class="sess-participant-card">
+          <div class="sess-p-avatar" id="sess-p2-avatar">?</div>
+          <div style="flex:1">
+            <div class="sess-p-name" id="sess-p2-name">Warte...</div>
+            <div class="sess-p-status" id="sess-p2-status">○  Offline</div>
+          </div>
+          <div class="sess-p-badge sess-p-badge-guest" id="sess-p2-badge" style="display:none">GAST</div>
+        </div>
+      </div>
+
+      <!-- MAIN CONTENT SPLIT -->
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:0;min-height:500px;border:1px solid var(--border);border-top:none;border-radius:0 0 12px 12px;overflow:hidden;margin-top:-1px">
+        <!-- LEFT: DOC VIEWER -->
+        <div style="border-right:1px solid var(--border);display:flex;flex-direction:column">
+          <!-- Upload bar -->
+          <div style="padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <label class="sess-upload-btn" for="sess-doc-upload" id="sess-upload-label">
+              📎 PDF HOCHLADEN
+              <input type="file" id="sess-doc-upload" accept="application/pdf,image/*" style="display:none" onchange="sessUploadDoc(this)">
+            </label>
+            <div id="sess-doc-name" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+            <div id="sess-ocr-progress" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--blue)"></div>
+            <button class="sess-timer-btn" id="sess-ocr-toggle" onclick="sessToggleOCR()" style="display:none;font-size:9px">📝 OCR TEXT</button>
+          </div>
+          <!-- Doc viewer -->
+          <div id="sess-doc-viewer" style="flex:1;position:relative;min-height:400px;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:auto">
+            <div id="sess-doc-placeholder" style="text-align:center;color:var(--muted);padding:40px">
+              <div style="font-size:48px;margin-bottom:12px;opacity:.3">📄</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px">KEIN DOKUMENT GELADEN</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--border2);margin-top:6px">PDF oder Bild hochladen · OCR-Support für gescannte Dokumente</div>
+            </div>
+            <canvas id="sess-pdf-canvas" style="display:none;max-width:100%;box-shadow:var(--shadow-md)"></canvas>
+            <img id="sess-img-viewer" style="display:none;max-width:100%;max-height:600px;object-fit:contain;box-shadow:var(--shadow-md)">
+            <div id="sess-ocr-overlay" style="display:none;position:absolute;inset:0;background:var(--surface);overflow-y:auto;padding:24px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.7;color:var(--ink)"></div>
+          </div>
+          <!-- PDF pagination -->
+          <div id="sess-pdf-nav" style="display:none;padding:8px 16px;background:var(--surface2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:12px">
+            <button class="sess-timer-btn" onclick="sessPdfPage(-1)">◀</button>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted)" id="sess-pdf-page-label">1 / 1</span>
+            <button class="sess-timer-btn" onclick="sessPdfPage(1)">▶</button>
+          </div>
+        </div>
+
+        <!-- RIGHT: CHAT + INFO PANEL -->
+        <div style="display:flex;flex-direction:column;background:var(--surface)">
+          <!-- Notes / shared notepad -->
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:8px">GEMEINSAME NOTIZEN</div>
+            <textarea id="sess-notes" placeholder="Notizen für beide sichtbar..." style="width:100%;min-height:80px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--ink);font-family:'IBM Plex Sans',sans-serif;font-size:12px;padding:8px 10px;resize:vertical;outline:none;transition:border-color .2s" oninput="sessNotesChanged()" onfocus="this.style.borderColor='var(--ink)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+          </div>
+          <!-- Chat -->
+          <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+            <div style="padding:10px 14px 6px;border-bottom:1px solid var(--border)">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted)">NACHRICHTEN</span>
+            </div>
+            <div id="sess-chat-messages" style="flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;max-height:240px"></div>
+            <div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;gap:7px">
+              <input id="sess-chat-input" class="add-input" style="flex:1;font-size:12px;padding:8px 12px" placeholder="Nachricht..." onkeydown="if(event.key==='Enter')sessSendChat()">
+              <button class="sess-timer-btn" onclick="sessSendChat()">→</button>
+            </div>
+          </div>
+          <!-- Session stats -->
+          <div style="padding:12px 14px;border-top:1px solid var(--border);background:var(--surface2)">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:8px">SESSION-INFO</div>
+            <div id="sess-room-stats" style="display:flex;flex-direction:column;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /screen-session -->
 
   <!-- PLAYER DETAIL MODAL -->
   <div class="rl-detail-overlay" id="rl-detail-overlay" onclick="rlDetailClose(event)">
@@ -3156,6 +3478,7 @@ function switchScreen(s) {
   document.getElementById('nav-' + s).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if(s==='rangliste') rlOnEnter();
+  if(s==='session' && authUser) sessLoadSessions();
 }
 function updateNavCounts() {
   const übCount=TYPES.reduce((a,k)=>a+(state.topics||[]).reduce((b,t)=>b+(t.log&&t.log[k]?t.log[k].length:0),0),0);
@@ -3379,6 +3702,857 @@ function chRender(){
 }
 
 function rlSpin(on){ document.getElementById('rl-spin').style.display=on?'inline-block':'none'; }
+
+// ══════════════════════════════════════════════════════════════════════
+// COMPETITIVE SESSION SYSTEM
+// Uses Supabase Realtime channels for live sync + DB for persistence
+// ══════════════════════════════════════════════════════════════════════
+
+const SESS_TABLE = 'sessions';
+const SESS_EVENTS_TABLE = 'session_events';
+
+let sessState = {
+  myName: null,
+  sessions: [],
+  activeSession: null,
+  channel: null,
+  timerInterval: null,
+  timerOffset: 0,       // ms offset when timer state was last set
+  timerBase: 0,         // epoch ms when timer started counting
+  timerRunning: false,
+  pdfDoc: null,
+  pdfPage: 1,
+  docData: null,        // base64 data for syncing
+  docType: null,        // 'pdf' or 'image'
+  docName: null,
+  ocrText: null,
+  ocrVisible: false,
+  notes: '',
+  notesSaveTimer: null,
+  pendingInvites: [],
+};
+
+// ──────────────────────────────────────────
+// INIT  (called after auth)
+// ──────────────────────────────────────────
+async function sessInit() {
+  if (!authUser) return;
+  sessState.myName = authUser.user_metadata?.full_name || authUser.email || authUser.id.slice(0,8);
+  await sessEnsureTables();
+  await sessLoadSessions();
+  sessSubscribeInvites();
+  // Refresh every 15s for lobby
+  setInterval(async () => {
+    if (document.getElementById('sess-lobby').style.display !== 'none') {
+      await sessLoadSessions();
+    }
+  }, 15000);
+}
+
+async function sessEnsureTables() {
+  // Tables must be created in Supabase dashboard. We gracefully handle missing tables.
+  // sessions: id, host_id, host_name, guest_id, guest_name, status, timer_state, doc_meta, notes, created_at, updated_at
+  // session_events: id, session_id, user_id, user_name, type, payload, created_at
+}
+
+// ──────────────────────────────────────────
+// LOAD & RENDER SESSIONS
+// ──────────────────────────────────────────
+async function sessLoadSessions() {
+  if (!authUser) return;
+  try {
+    const { data, error } = await supa
+      .from(SESS_TABLE)
+      .select('*')
+      .or(`host_id.eq.${authUser.id},guest_id.eq.${authUser.id}`)
+      .neq('status','closed')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (error) { console.warn('sess load', error); sessRenderFallback(); return; }
+    sessState.sessions = data || [];
+
+    // Separate pending invites (where I'm the guest and status is 'pending')
+    sessState.pendingInvites = sessState.sessions.filter(s =>
+      s.guest_id === authUser.id && s.status === 'pending'
+    );
+    sessRenderLobby();
+  } catch(e) { console.warn('sess load err', e); sessRenderFallback(); }
+}
+
+function sessRenderFallback() {
+  document.getElementById('sess-my-list').innerHTML =
+    '<div class="rl-status err" style="display:block">⚠ Sessions-Tabelle nicht gefunden. Bitte erstelle sie in Supabase.<br><span style="font-size:9px">Tabelle: <strong>sessions</strong> &amp; <strong>session_events</strong> · Siehe Anleitung unten.</span></div>' +
+    '<div style="margin-top:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;font-family:IBM Plex Mono,monospace;font-size:9px;color:var(--muted);line-height:2">' +
+    '<strong style="color:var(--ink)">Supabase SQL — Einmalig ausführen:</strong><br><br>' +
+    '<code style="background:var(--bg);display:block;padding:10px;border-radius:4px;white-space:pre-wrap;color:var(--blue)">CREATE TABLE sessions (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  host_id text NOT NULL,\n  host_name text,\n  guest_id text,\n  guest_name text,\n  status text DEFAULT \'pending\',\n  timer_state jsonb DEFAULT \'{"running":false,"base":0,"offset":0}\',\n  doc_meta jsonb,\n  notes text DEFAULT \'\',\n  created_at timestamptz DEFAULT now(),\n  updated_at timestamptz DEFAULT now()\n);\n\nCREATE TABLE session_events (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  session_id uuid REFERENCES sessions(id) ON DELETE CASCADE,\n  user_id text,\n  user_name text,\n  type text,\n  payload jsonb,\n  created_at timestamptz DEFAULT now()\n);\n\nALTER TABLE sessions ENABLE ROW LEVEL SECURITY;\nALTER TABLE session_events ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "all_access" ON sessions FOR ALL USING (true) WITH CHECK (true);\nCREATE POLICY "all_access" ON session_events FOR ALL USING (true) WITH CHECK (true);</code>' +
+    '</div>';
+}
+
+function sessRenderLobby() {
+  // Invites section
+  const invSect = document.getElementById('sess-invites-section');
+  const invList = document.getElementById('sess-invites-list');
+  if (sessState.pendingInvites.length > 0) {
+    invSect.style.display = 'block';
+    invList.innerHTML = sessState.pendingInvites.map(s => `
+      <div class="sess-invite-card">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--blue)">Einladung von ${esc(s.host_name||'Unbekannt')}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:3px">${new Date(s.created_at).toLocaleString('de-DE')}</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ink" style="background:var(--blue);font-size:10px;padding:8px 16px" onclick="sessAccept('${s.id}')">✓ BEITRETEN</button>
+          <button class="btn btn-ghost" style="font-size:10px;padding:8px 14px" onclick="sessDecline('${s.id}')">✕</button>
+        </div>
+      </div>`).join('');
+  } else {
+    invSect.style.display = 'none';
+  }
+
+  // My sessions list
+  const myList = document.getElementById('sess-my-list');
+  const mine = sessState.sessions.filter(s => s.status !== 'pending' || s.host_id === authUser.id);
+  if (!mine.length) {
+    myList.innerHTML = '<div class="rl-empty" style="border-style:dashed"><div class="rl-empty-icon">⚡</div><p>Noch keine Sessions.<br>Starte eine Session oben.</p></div>';
+    return;
+  }
+  myList.innerHTML = mine.map(s => {
+    const isHost = s.host_id === authUser.id;
+    const partner = isHost ? (s.guest_name||'Wartet auf Gast') : (s.host_name||'Host');
+    const statusMap = { pending:'⏳ Wartet', active:'● Aktiv', closed:'✓ Beendet' };
+    const statusColor = { pending:'var(--gold)', active:'var(--green)', closed:'var(--muted)' };
+    return `<div class="sess-session-card ${s.status==='active'?'active-room':s.status==='pending'?'pending':''}">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--ink)">${esc(isHost ? sessState.myName : s.host_name)} vs. ${esc(isHost ? partner : sessState.myName)}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px">${new Date(s.created_at).toLocaleString('de-DE')} · ${isHost?'HOST':'GAST'}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:9px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:${statusColor[s.status]||'var(--muted)'};padding:4px 10px;border:1px solid currentColor;border-radius:20px">${statusMap[s.status]||s.status}</span>
+        ${s.status!=='closed'?`<button class="btn btn-ink" style="background:var(--blue);font-size:10px;padding:7px 14px" onclick="sessEnterRoom('${s.id}')">⚡ ÖFFNEN</button>`:''}
+        <button class="btn btn-ghost" style="font-size:10px;padding:7px 12px" onclick="sessCloseSession('${s.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Online players for invite
+  sessRenderOnlinePlayers();
+}
+
+function sessRenderOnlinePlayers() {
+  const players = (rlBoard?.players||[]).filter(p=>p.name.toLowerCase()!==sessState.myName.toLowerCase());
+  const el = document.getElementById('sess-online-players');
+  if (!players.length) { el.innerHTML=''; return; }
+  el.innerHTML = '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:8px">RANGLISTE — SCHNELL EINLADEN</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:7px">' +
+    players.slice(0,8).map(p=>`<button class="btn btn-ghost" style="font-size:10px;padding:6px 13px" onclick="sessQuickInvite('${esc(p.name)}')">${esc(p.name)}</button>`).join('') +
+    '</div>';
+}
+
+// ──────────────────────────────────────────
+// CREATE / ACCEPT / DECLINE
+// ──────────────────────────────────────────
+async function sessCreate() {
+  if (!authUser) return sessStatus('err', 'Bitte zuerst anmelden.');
+  const input = document.getElementById('sess-invite-input');
+  const guestName = input.value.trim();
+  document.getElementById('sess-player-dropdown').style.display = 'none';
+
+  // Find guest in leaderboard
+  const guestPlayer = (rlBoard?.players||[]).find(p=>p.name.toLowerCase()===(guestName||'').toLowerCase());
+  let guestId = null;
+  if (guestPlayer) {
+    // Try to find their user_id from tracker_data
+    const { data } = await supa.from('tracker_data').select('user_id').limit(100);
+    // We use name matching for now — sessions are keyed by name too
+    guestId = guestPlayer.userId || null;
+  }
+
+  sessStatus('loading', 'Erstelle Session...');
+  try {
+    const { data, error } = await supa.from(SESS_TABLE).insert({
+      host_id: authUser.id,
+      host_name: sessState.myName,
+      guest_id: guestId,
+      guest_name: guestName || null,
+      status: guestName ? 'pending' : 'active',
+      timer_state: { running: false, base: 0, offset: 0 },
+      doc_meta: null,
+      notes: '',
+    }).select().single();
+    if (error) throw error;
+    input.value = '';
+    sessStatus('ok', `Session erstellt${guestName?' · Einladung an '+guestName:''}!`);
+    await sessLoadSessions();
+    setTimeout(() => sessEnterRoom(data.id), 400);
+  } catch(e) { sessStatus('err', 'Fehler: '+e.message); }
+}
+
+function sessQuickInvite(name) {
+  document.getElementById('sess-invite-input').value = name;
+  document.getElementById('sess-player-dropdown').style.display = 'none';
+}
+
+async function sessAccept(sessionId) {
+  try {
+    const { error } = await supa.from(SESS_TABLE).update({
+      guest_id: authUser.id,
+      guest_name: sessState.myName,
+      status: 'active',
+      updated_at: new Date().toISOString()
+    }).eq('id', sessionId);
+    if (error) throw error;
+    await sessLoadSessions();
+    sessEnterRoom(sessionId);
+  } catch(e) { sessStatus('err', 'Fehler: '+e.message); }
+}
+
+async function sessDecline(sessionId) {
+  await supa.from(SESS_TABLE).update({ status: 'closed' }).eq('id', sessionId);
+  await sessLoadSessions();
+}
+
+async function sessCloseSession(sessionId) {
+  await supa.from(SESS_TABLE).update({ status: 'closed' }).eq('id', sessionId);
+  await sessLoadSessions();
+}
+
+// ──────────────────────────────────────────
+// ENTER ROOM
+// ──────────────────────────────────────────
+async function sessEnterRoom(sessionId) {
+  const session = sessState.sessions.find(s => s.id === sessionId);
+  if (!session) { await sessLoadSessions(); const s2 = sessState.sessions.find(s=>s.id===sessionId); if(!s2) return; return sessEnterRoom(sessionId); }
+
+  sessState.activeSession = session;
+  const isHost = session.host_id === authUser.id;
+
+  // Switch to room view
+  document.getElementById('sess-lobby').style.display = 'none';
+  document.getElementById('sess-room').style.display = 'block';
+  document.getElementById('nav-count-session').style.display = 'inline';
+
+  // Fill header
+  const p1name = isHost ? (session.host_name||'Du') : (session.guest_name||'Du');
+  const p2name = isHost ? (session.guest_name||'Warte auf Gast') : (session.host_name||'Host');
+  document.getElementById('sess-room-title').textContent = `${p1name} ⚡ ${p2name}`;
+
+  // Avatar initials
+  const init = n => (n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('sess-p1-avatar').textContent = init(p1name);
+  document.getElementById('sess-p2-avatar').textContent = init(p2name);
+  document.getElementById('sess-p1-name').textContent = p1name;
+  document.getElementById('sess-p2-name').textContent = p2name;
+  document.getElementById('sess-p1-status').textContent = '●  Online';
+  document.getElementById('sess-p2-status').textContent = session.status==='active'?'●  Online':'○  Wartet...';
+  document.getElementById('sess-p1-badge').textContent = isHost ? 'HOST' : 'GAST';
+  document.getElementById('sess-p2-badge').style.display = 'block';
+  document.getElementById('sess-p2-badge').textContent = isHost ? 'GAST' : 'HOST';
+
+  // Restore timer state
+  const ts = session.timer_state || { running:false, base:0, offset:0 };
+  sessState.timerRunning = ts.running;
+  sessState.timerBase = ts.base || 0;
+  sessState.timerOffset = ts.offset || 0;
+  sessUpdateTimerDisplay();
+  if (ts.running) sessStartLocalTimer();
+
+  // Restore notes
+  sessState.notes = session.notes || '';
+  document.getElementById('sess-notes').value = sessState.notes;
+
+  // Restore doc if any
+  if (session.doc_meta) {
+    sessRestoreDoc(session.doc_meta);
+  }
+
+  // Session stats
+  sessUpdateRoomStats();
+
+  // Subscribe to realtime
+  sessSubscribeRoom(sessionId);
+  // Load history
+  await sessLoadChatHistory(sessionId);
+}
+
+function sessUpdateRoomStats() {
+  const s = sessState.activeSession;
+  if (!s) return;
+  const el = document.getElementById('sess-room-stats');
+  el.innerHTML = `
+    <div>📅 ${new Date(s.created_at).toLocaleDateString('de-DE')}</div>
+    <div>🕐 ${new Date(s.created_at).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</div>
+    <div>🆔 ${s.id.slice(0,8).toUpperCase()}</div>
+  `;
+}
+
+// ──────────────────────────────────────────
+// REALTIME CHANNEL
+// ──────────────────────────────────────────
+function sessSubscribeRoom(sessionId) {
+  // Unsubscribe from any previous channel
+  if (sessState.channel) {
+    supa.removeChannel(sessState.channel);
+    sessState.channel = null;
+  }
+
+  sessConnStatus('syncing');
+
+  sessState.channel = supa
+    .channel(`session-${sessionId}`)
+    .on('broadcast', { event: 'timer' }, ({ payload }) => sessHandleTimerEvent(payload))
+    .on('broadcast', { event: 'chat' },  ({ payload }) => sessHandleChatEvent(payload))
+    .on('broadcast', { event: 'notes' }, ({ payload }) => sessHandleNotesEvent(payload))
+    .on('broadcast', { event: 'doc' },   ({ payload }) => sessHandleDocEvent(payload))
+    .on('broadcast', { event: 'presence' }, ({ payload }) => sessHandlePresence(payload))
+    .on('presence', { event: 'sync' }, () => sessHandlePresenceSync())
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        sessConnStatus('ok');
+        // Announce presence
+        await sessState.channel.track({
+          user_id: authUser.id,
+          user_name: sessState.myName,
+          online_at: new Date().toISOString(),
+        });
+      } else if (status === 'CHANNEL_ERROR' || status === 'CLOSED') {
+        sessConnStatus('err');
+      }
+    });
+}
+
+function sessSubscribeInvites() {
+  if (!authUser) return;
+  // Listen for new sessions where I'm guest
+  supa.channel('invites-'+authUser.id)
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: SESS_TABLE,
+      filter: `guest_id=eq.${authUser.id}`
+    }, async () => {
+      await sessLoadSessions();
+    })
+    .subscribe();
+}
+
+function sessHandlePresenceSync() {
+  if (!sessState.channel) return;
+  const state = sessState.channel.presenceState();
+  const users = Object.values(state).flat();
+  const others = users.filter(u => u.user_id !== authUser.id);
+  const p2online = others.length > 0;
+  document.getElementById('sess-p2-status').textContent = p2online ? '●  Online' : '○  Offline';
+  const p2card = document.getElementById('sess-p2-card');
+  p2card.style.borderColor = p2online ? 'var(--green)' : 'var(--border)';
+  p2card.style.background = p2online ? 'rgba(45,106,79,.04)' : 'var(--surface)';
+}
+
+function sessConnStatus(state) {
+  const dot = document.getElementById('sess-conn-dot');
+  const lbl = document.getElementById('sess-conn-label');
+  if (!dot) return;
+  dot.className = 'rl-sync-dot ' + state;
+  const m = { syncing:'VERBINDE...', ok:'VERBUNDEN', err:'GETRENNT' };
+  lbl.textContent = m[state] || state;
+}
+
+function sessHandlePresence(payload) {} // handled by presenceState
+
+// ──────────────────────────────────────────
+// TIMER
+// ──────────────────────────────────────────
+function sessTimerToggle() {
+  sessState.timerRunning = !sessState.timerRunning;
+  const now = Date.now();
+  if (sessState.timerRunning) {
+    sessState.timerBase = now;
+    sessStartLocalTimer();
+  } else {
+    sessState.timerOffset += (now - sessState.timerBase);
+    sessStopLocalTimer();
+  }
+  sessUpdateTimerDisplay();
+  sessBroadcastTimer();
+  sessPersistTimer();
+
+  const btn = document.getElementById('sess-timer-start');
+  btn.textContent = sessState.timerRunning ? '⏸ PAUSE' : '▶ START';
+  btn.className = 'sess-timer-btn ' + (sessState.timerRunning ? 'red' : 'green');
+}
+
+function sessTimerReset() {
+  sessStopLocalTimer();
+  sessState.timerRunning = false;
+  sessState.timerBase = 0;
+  sessState.timerOffset = 0;
+  sessUpdateTimerDisplay();
+  sessBroadcastTimer();
+  sessPersistTimer();
+  const btn = document.getElementById('sess-timer-start');
+  btn.textContent = '▶ START';
+  btn.className = 'sess-timer-btn green';
+}
+
+function sessStartLocalTimer() {
+  sessStopLocalTimer();
+  sessState.timerInterval = setInterval(sessUpdateTimerDisplay, 500);
+}
+
+function sessStopLocalTimer() {
+  if (sessState.timerInterval) { clearInterval(sessState.timerInterval); sessState.timerInterval = null; }
+}
+
+function sessUpdateTimerDisplay() {
+  const el = document.getElementById('sess-timer');
+  if (!el) return;
+  let ms = sessState.timerOffset;
+  if (sessState.timerRunning && sessState.timerBase) {
+    ms += (Date.now() - sessState.timerBase);
+  }
+  ms = Math.max(0, ms);
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  el.className = 'sess-timer-display ' + (sessState.timerRunning ? 'running' : ms > 0 ? 'paused' : '');
+}
+
+function sessBroadcastTimer() {
+  if (!sessState.channel) return;
+  sessState.channel.send({
+    type: 'broadcast',
+    event: 'timer',
+    payload: {
+      running: sessState.timerRunning,
+      base: sessState.timerBase,
+      offset: sessState.timerOffset,
+      ts: Date.now(),
+    }
+  });
+}
+
+function sessHandleTimerEvent(p) {
+  // Sync with small latency correction
+  const lag = Date.now() - (p.ts || Date.now());
+  sessState.timerRunning = p.running;
+  sessState.timerBase = p.base + lag;
+  sessState.timerOffset = p.offset;
+  if (p.running) sessStartLocalTimer(); else sessStopLocalTimer();
+  sessUpdateTimerDisplay();
+  const btn = document.getElementById('sess-timer-start');
+  if (btn) {
+    btn.textContent = p.running ? '⏸ PAUSE' : '▶ START';
+    btn.className = 'sess-timer-btn ' + (p.running ? 'red' : 'green');
+  }
+}
+
+async function sessPersistTimer() {
+  if (!sessState.activeSession) return;
+  await supa.from(SESS_TABLE).update({
+    timer_state: { running: sessState.timerRunning, base: sessState.timerBase, offset: sessState.timerOffset },
+    updated_at: new Date().toISOString()
+  }).eq('id', sessState.activeSession.id);
+}
+
+// ──────────────────────────────────────────
+// CHAT
+// ──────────────────────────────────────────
+async function sessLoadChatHistory(sessionId) {
+  try {
+    const { data } = await supa.from(SESS_EVENTS_TABLE)
+      .select('*').eq('session_id', sessionId).eq('type', 'chat')
+      .order('created_at', { ascending: true }).limit(50);
+    if (data) data.forEach(e => sessRenderChatMsg(e.user_id, e.user_name, e.payload?.text, e.created_at));
+  } catch(e) {}
+}
+
+function sessSendChat() {
+  const inp = document.getElementById('sess-chat-input');
+  const text = inp.value.trim();
+  if (!text || !sessState.activeSession) return;
+  inp.value = '';
+  // Render immediately
+  sessRenderChatMsg(authUser.id, sessState.myName, text, new Date().toISOString());
+  // Broadcast
+  if (sessState.channel) {
+    sessState.channel.send({ type:'broadcast', event:'chat', payload:{ userId: authUser.id, userName: sessState.myName, text } });
+  }
+  // Persist
+  supa.from(SESS_EVENTS_TABLE).insert({
+    session_id: sessState.activeSession.id,
+    user_id: authUser.id,
+    user_name: sessState.myName,
+    type: 'chat',
+    payload: { text }
+  }).then(() => {});
+}
+
+function sessHandleChatEvent(p) {
+  if (p.userId === authUser.id) return; // already rendered
+  sessRenderChatMsg(p.userId, p.userName, p.text, new Date().toISOString());
+}
+
+function sessRenderChatMsg(userId, userName, text, time) {
+  const container = document.getElementById('sess-chat-messages');
+  if (!container) return;
+  const isMe = userId === authUser.id;
+  const el = document.createElement('div');
+  el.style.display = 'flex';
+  el.style.flexDirection = 'column';
+  el.style.alignItems = isMe ? 'flex-end' : 'flex-start';
+  el.innerHTML = (!isMe ? `<div class="sess-chat-name">${esc(userName)}</div>` : '') +
+    `<div class="sess-chat-msg ${isMe?'me':'them'}">${esc(text)}</div>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+function sessSysMsg(text) {
+  const container = document.getElementById('sess-chat-messages');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.innerHTML = `<div class="sess-chat-msg system">${text}</div>`;
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ──────────────────────────────────────────
+// SHARED NOTES
+// ──────────────────────────────────────────
+function sessNotesChanged() {
+  sessState.notes = document.getElementById('sess-notes').value;
+  if (sessState.notesSaveTimer) clearTimeout(sessState.notesSaveTimer);
+  sessState.notesSaveTimer = setTimeout(sessNotesSync, 800);
+}
+
+function sessNotesSync() {
+  if (!sessState.activeSession) return;
+  if (sessState.channel) {
+    sessState.channel.send({ type:'broadcast', event:'notes', payload:{ notes: sessState.notes } });
+  }
+  supa.from(SESS_TABLE).update({ notes: sessState.notes }).eq('id', sessState.activeSession.id).then(()=>{});
+}
+
+function sessHandleNotesEvent(p) {
+  sessState.notes = p.notes;
+  const el = document.getElementById('sess-notes');
+  if (el && el !== document.activeElement) el.value = p.notes;
+}
+
+// ──────────────────────────────────────────
+// DOC UPLOAD + OCR
+// ──────────────────────────────────────────
+async function sessUploadDoc(input) {
+  const file = input.files[0];
+  if (!file) return;
+  sessState.docName = file.name;
+  document.getElementById('sess-doc-name').textContent = file.name;
+
+  const isPdf = file.type === 'application/pdf' || file.name.endsWith('.pdf');
+  sessState.docType = isPdf ? 'pdf' : 'image';
+
+  // Read as base64 for sync (capped at 4MB for broadcast)
+  const MAX_SYNC = 4 * 1024 * 1024;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const b64 = e.target.result; // data URL
+
+    if (isPdf) {
+      sessRenderPDF(b64);
+    } else {
+      sessRenderImage(b64);
+    }
+
+    // Sync to partner (only if reasonable size)
+    if (file.size < MAX_SYNC) {
+      sessState.docData = b64;
+      if (sessState.channel) {
+        sessState.channel.send({ type:'broadcast', event:'doc', payload:{
+          docType: sessState.docType,
+          docName: sessState.docName,
+          data: b64
+        }});
+      }
+      // Persist meta in DB (not the full file, just metadata)
+      const meta = { docType: sessState.docType, docName: sessState.docName, hasData: true };
+      if (sessState.activeSession) {
+        await supa.from(SESS_TABLE).update({ doc_meta: meta }).eq('id', sessState.activeSession.id);
+        // Store doc in session_events for partner to retrieve
+        await supa.from(SESS_EVENTS_TABLE).insert({
+          session_id: sessState.activeSession.id,
+          user_id: authUser.id,
+          user_name: sessState.myName,
+          type: 'doc',
+          payload: { docType: sessState.docType, docName: sessState.docName, data: b64 }
+        });
+      }
+    } else {
+      sessSysMsg('⚠ Dokument zu groß für Echtzeit-Sync (>4MB). Nur lokal sichtbar.');
+    }
+
+    // OCR for images or scanned PDFs
+    if (!isPdf) {
+      sessRunOCR(file);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function sessRenderPDF(dataURL) {
+  try {
+    if (!window.pdfjsLib) {
+      await sessLoadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    document.getElementById('sess-doc-placeholder').style.display = 'none';
+    document.getElementById('sess-img-viewer').style.display = 'none';
+    const canvas = document.getElementById('sess-pdf-canvas');
+    canvas.style.display = 'block';
+
+    const pdfDoc = await pdfjsLib.getDocument(dataURL).promise;
+    sessState.pdfDoc = pdfDoc;
+    sessState.pdfPage = 1;
+
+    document.getElementById('sess-pdf-nav').style.display = 'flex';
+    sessPdfRenderPage(1);
+  } catch(e) {
+    document.getElementById('sess-doc-placeholder').style.display = 'none';
+    // Fallback: show as object
+    const viewer = document.getElementById('sess-doc-viewer');
+    viewer.innerHTML = `<iframe src="${dataURL}" style="width:100%;height:500px;border:none;"></iframe>`;
+  }
+}
+
+async function sessPdfRenderPage(pageNum) {
+  if (!sessState.pdfDoc) return;
+  const total = sessState.pdfDoc.numPages;
+  const page = await sessState.pdfDoc.getPage(pageNum);
+  const viewport = page.getViewport({ scale: 1.4 });
+  const canvas = document.getElementById('sess-pdf-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+  await page.render({ canvasContext: ctx, viewport }).promise;
+  document.getElementById('sess-pdf-page-label').textContent = `${pageNum} / ${total}`;
+  sessState.pdfPage = pageNum;
+}
+
+function sessPdfPage(delta) {
+  if (!sessState.pdfDoc) return;
+  const next = Math.max(1, Math.min(sessState.pdfDoc.numPages, sessState.pdfPage + delta));
+  sessPdfRenderPage(next);
+}
+
+function sessRenderImage(dataURL) {
+  document.getElementById('sess-doc-placeholder').style.display = 'none';
+  document.getElementById('sess-pdf-canvas').style.display = 'none';
+  document.getElementById('sess-pdf-nav').style.display = 'none';
+  const img = document.getElementById('sess-img-viewer');
+  img.src = dataURL;
+  img.style.display = 'block';
+}
+
+async function sessRunOCR(file) {
+  try {
+    document.getElementById('sess-ocr-progress').style.display = 'inline';
+    document.getElementById('sess-ocr-progress').textContent = '🔍 OCR läuft...';
+
+    if (!window.Tesseract) {
+      await sessLoadScript('https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.4/tesseract.min.js');
+    }
+
+    const result = await Tesseract.recognize(file, 'deu+eng', {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          const pct = Math.round(m.progress * 100);
+          document.getElementById('sess-ocr-progress').textContent = `🔍 OCR ${pct}%`;
+        }
+      }
+    });
+
+    sessState.ocrText = result.data.text;
+    document.getElementById('sess-ocr-progress').textContent = '✓ OCR fertig';
+    document.getElementById('sess-ocr-toggle').style.display = 'inline-flex';
+    document.getElementById('sess-ocr-overlay').innerHTML =
+      '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:12px">OCR-ERKANNTER TEXT</div>' +
+      '<pre style="white-space:pre-wrap;font-family:IBM Plex Sans,sans-serif;font-size:13px;line-height:1.7">' + esc(sessState.ocrText) + '</pre>';
+
+    // Sync OCR text to partner
+    if (sessState.channel) {
+      sessState.channel.send({ type:'broadcast', event:'doc', payload:{ ocr: sessState.ocrText, docName: sessState.docName }});
+    }
+    setTimeout(() => document.getElementById('sess-ocr-progress').style.display = 'none', 2000);
+  } catch(e) {
+    document.getElementById('sess-ocr-progress').textContent = '⚠ OCR fehlgeschlagen';
+    console.warn('OCR error', e);
+  }
+}
+
+function sessToggleOCR() {
+  sessState.ocrVisible = !sessState.ocrVisible;
+  const overlay = document.getElementById('sess-ocr-overlay');
+  overlay.style.display = sessState.ocrVisible ? 'block' : 'none';
+  document.getElementById('sess-ocr-toggle').textContent = sessState.ocrVisible ? '🖼 DOKUMENT' : '📝 OCR TEXT';
+}
+
+function sessHandleDocEvent(p) {
+  if (p.data) {
+    if (p.docType === 'pdf') {
+      sessRenderPDF(p.data);
+    } else {
+      sessRenderImage(p.data);
+    }
+    if (p.docName) document.getElementById('sess-doc-name').textContent = p.docName + ' (Partner)';
+    sessSysMsg(`📄 Dokument von Partner: ${esc(p.docName||'Unbekannt')}`);
+  }
+  if (p.ocr) {
+    sessState.ocrText = p.ocr;
+    document.getElementById('sess-ocr-overlay').innerHTML =
+      '<div style="font-family:IBM Plex Mono,monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:12px">OCR-ERKANNTER TEXT (PARTNER)</div>' +
+      '<pre style="white-space:pre-wrap;font-family:IBM Plex Sans,sans-serif;font-size:13px;line-height:1.7">' + esc(sessState.ocrText) + '</pre>';
+    document.getElementById('sess-ocr-toggle').style.display = 'inline-flex';
+  }
+}
+
+async function sessRestoreDoc(meta) {
+  if (!meta?.hasData || !sessState.activeSession) return;
+  // Try to get doc from session_events
+  try {
+    const { data } = await supa.from(SESS_EVENTS_TABLE)
+      .select('payload')
+      .eq('session_id', sessState.activeSession.id)
+      .eq('type', 'doc')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (data?.payload?.data) {
+      if (data.payload.docType === 'pdf') sessRenderPDF(data.payload.data);
+      else sessRenderImage(data.payload.data);
+      if (data.payload.docName) document.getElementById('sess-doc-name').textContent = data.payload.docName;
+    }
+  } catch(e) {}
+}
+
+function sessLoadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// ──────────────────────────────────────────
+// SEARCH / FILTER
+// ──────────────────────────────────────────
+function sessFilterPlayers(query) {
+  const dd = document.getElementById('sess-player-dropdown');
+  if (!query.trim()) { dd.style.display = 'none'; return; }
+  const players = (rlBoard?.players||[]).filter(p =>
+    p.name.toLowerCase().includes(query.toLowerCase()) &&
+    p.name.toLowerCase() !== sessState.myName?.toLowerCase()
+  );
+  if (!players.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = players.slice(0,8).map((p,i) =>
+    `<div class="sess-player-opt" onclick="sessPickPlayer('${esc(p.name)}')">
+      <span class="sess-player-opt-rank">#${i+1}</span>
+      <span>${esc(p.name)}</span>
+      <span class="sess-player-opt-score">${p.total||0} Üb.</span>
+    </div>`
+  ).join('');
+  dd.style.display = 'block';
+}
+
+function sessPickPlayer(name) {
+  document.getElementById('sess-invite-input').value = name;
+  document.getElementById('sess-player-dropdown').style.display = 'none';
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  const dd = document.getElementById('sess-player-dropdown');
+  if (dd && !dd.contains(e.target) && e.target.id !== 'sess-invite-input') {
+    dd.style.display = 'none';
+  }
+});
+
+// ──────────────────────────────────────────
+// LEAVE ROOM
+// ──────────────────────────────────────────
+function sessLeaveRoom() {
+  sessStopLocalTimer();
+  if (sessState.channel) {
+    supa.removeChannel(sessState.channel);
+    sessState.channel = null;
+  }
+  sessState.activeSession = null;
+  sessState.pdfDoc = null;
+  sessState.docData = null;
+  sessState.ocrText = null;
+  sessState.ocrVisible = false;
+
+  // Reset doc viewer
+  document.getElementById('sess-doc-placeholder').style.display = 'flex';
+  document.getElementById('sess-pdf-canvas').style.display = 'none';
+  document.getElementById('sess-img-viewer').style.display = 'none';
+  document.getElementById('sess-ocr-overlay').style.display = 'none';
+  document.getElementById('sess-pdf-nav').style.display = 'none';
+  document.getElementById('sess-doc-name').textContent = '';
+  document.getElementById('sess-chat-messages').innerHTML = '';
+  document.getElementById('sess-notes').value = '';
+  document.getElementById('nav-count-session').style.display = 'none';
+
+  document.getElementById('sess-room').style.display = 'none';
+  document.getElementById('sess-lobby').style.display = 'block';
+  sessLoadSessions();
+}
+
+// ──────────────────────────────────────────
+// STATUS BAR HELPER
+// ──────────────────────────────────────────
+function sessStatus(type, msg) {
+  const el = document.getElementById('sess-status-bar');
+  if (!el) return;
+  el.className = 'rl-status ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+  if (type === 'ok') setTimeout(() => { el.style.display='none'; }, 3000);
+}
+
+// ──────────────────────────────────────────
+// HOOK INTO authOnSignedIn
+// ──────────────────────────────────────────
+const _origAuthOnSignedIn = authOnSignedIn;
+authOnSignedIn = function() {
+  _origAuthOnSignedIn.call(this);
+  setTimeout(sessInit, 500);
+};
+
+// Also hook into rlDetailClose to add "SESSION STARTEN" button
+const _origRlDetailOpen = rlDetailOpen;
+function rlDetailOpen(p, rank, maxV) {
+  _origRlDetailOpen(p, rank, maxV);
+  // Add session button to detail footer
+  const footer = document.getElementById('rl-detail-footer');
+  const isYou = rlMe && p.name.toLowerCase() === rlMe.toLowerCase();
+  if (!isYou && footer) {
+    const sessBtn = document.createElement('button');
+    sessBtn.className = 'btn btn-ink';
+    sessBtn.style.cssText = 'font-size:10px;padding:7px 14px;background:var(--blue);border-color:var(--blue)';
+    sessBtn.innerHTML = '⚡ Session starten';
+    sessBtn.onclick = () => {
+      rlDetailCloseBtn();
+      switchScreen('session');
+      setTimeout(() => {
+        document.getElementById('sess-invite-input').value = p.name;
+        sessFilterPlayers(p.name);
+      }, 200);
+    };
+    footer.appendChild(sessBtn);
+  }
+}
 
 // ══════════════════════════════════════════════
 // SUPABASE — AUTH + CLOUD SYNC
