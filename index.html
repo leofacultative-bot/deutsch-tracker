@@ -2382,6 +2382,7 @@ header { padding: 44px 0 32px; }
       <div class="section-label">MEIN EINTRAG</div>
       <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
         <div style="flex:1;min-width:180px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink)" id="rl-myname-display"></div>
+        <button id="rl-blur-btn" onclick="rlToggleBlur()" style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:1px;padding:6px 13px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s;text-transform:uppercase">🙈 STATS VERBERGEN</button>
         <div class="rl-autosync-badge" id="rl-autosync-badge">
           <span class="rl-spinner" id="rl-spin" style="display:none"></span>
           <span id="rl-sync-dot" class="rl-sync-dot"></span>
@@ -3664,8 +3665,25 @@ function rlBuildMyEntry(name) {
   return {
     name, schreiben:s, hören:h, sprechen:sp, grammatik:g, mistakes:m,
     reinforce, reinforceSolved, wortschatz, memorized, totalTimeSec,
-    total: s+h+sp+g, updated: new Date().toLocaleDateString('de-DE')
+    total: s+h+sp+g, updated: new Date().toLocaleDateString('de-DE'),
+    blurred: !!(state.rlBlurred)
   };
+}
+
+function rlToggleBlur() {
+  state.rlBlurred = !state.rlBlurred;
+  save();
+  rlSupaPublish();
+  rlRenderBlurBtn();
+}
+
+function rlRenderBlurBtn() {
+  const btn = document.getElementById('rl-blur-btn');
+  if (!btn) return;
+  const on = !!(state.rlBlurred);
+  btn.textContent = on ? '👁 STATS ANZEIGEN' : '🙈 STATS VERBERGEN';
+  btn.style.color = on ? 'var(--accent)' : 'var(--muted)';
+  btn.style.borderColor = on ? 'rgba(184,41,31,.4)' : 'var(--border2)';
 }
 
 async function rlSupaPublish(){
@@ -3673,6 +3691,7 @@ async function rlSupaPublish(){
   const name=authUser.user_metadata?.full_name||authUser.email||'Anonym';
   rlMe=name;
   const el=document.getElementById('rl-myname-display'); if(el)el.textContent='👤 '+name;
+  rlRenderBlurBtn();
   rlSyncStatus('SYNCHRONISIERT...','syncing'); rlSpin(true);
   try {
     const entry=rlBuildMyEntry(name);
@@ -3729,22 +3748,25 @@ function rlRender(){
     const rk=i<3?rcls[i]:'rn';
     const medal=i<3?['🥇','🥈','🥉'][i]:(i+1)+'';
     const isYou=rlMe&&p.name.toLowerCase()===rlMe.toLowerCase();
-    const hrs=rlFmtHours(p.totalTimeSec);
+    const isBlurred = p.blurred && !isYou;
+    const hrs = isBlurred ? '—' : rlFmtHours(p.totalTimeSec);
+    const wortschatzVal = isBlurred ? '<span style="filter:blur(6px);user-select:none">••••</span>' : (p.wortschatz||0);
+    const hrsVal = isBlurred ? '<span style="filter:blur(6px);user-select:none">••••</span>' : hrs;
 
     return '<div class="rl-row '+rk+(isYou?' is-you':'')+'" data-name="'+esc(p.name)+'">'+
       '<div class="rl-row-rank">'+medal+'</div>'+
       '<div class="rl-row-name-col">'+
         '<button class="rl-row-name" onclick="rlOpenDetail(\''+esc(p.name)+'\')">'+
-          esc(p.name)+(isYou?'<span class="rl-you-badge">DU</span>':'')+
+          esc(p.name)+(isYou?'<span class="rl-you-badge">DU</span>':'')+(p.blurred&&!isYou?'<span style="font-family:IBM Plex Mono,monospace;font-size:7px;color:var(--muted);border:1px solid var(--border2);border-radius:20px;padding:2px 6px;letter-spacing:1px">PRIVAT</span>':'')+
         '</button>'+
         '<div class="rl-row-date">Zuletzt: '+esc(p.updated||'—')+'</div>'+
       '</div>'+
       '<div class="rl-row-stat w">'+
-        '<div class="rl-row-stat-num">'+(p.wortschatz||0)+'</div>'+
+        '<div class="rl-row-stat-num">'+wortschatzVal+'</div>'+
         '<div class="rl-row-stat-lbl">WÖRTER</div>'+
       '</div>'+
       '<div class="rl-row-hours">'+
-        '<div class="rl-row-hours-num">'+hrs+'</div>'+
+        '<div class="rl-row-hours-num">'+hrsVal+'</div>'+
         '<div class="rl-row-hours-lbl">STUNDEN</div>'+
       '</div>'+
     '</div>';
@@ -3771,11 +3793,15 @@ function rlOpenDetail(name){
   document.getElementById('rl-detail-rank').textContent=medal+' PLATZ '+(rank+1)+' VON '+players.length;
   document.getElementById('rl-detail-name').textContent=p.name;
   document.getElementById('rl-detail-date').textContent='Zuletzt: '+(p.updated||'—');
+  const isYou=rlMe&&p.name.toLowerCase()===rlMe.toLowerCase();
+  const isBlurred = p.blurred && !isYou;
+  const blurStyle = 'filter:blur(7px);user-select:none;pointer-events:none';
   const hrs=rlFmtHours(p.totalTimeSec);
   document.getElementById('rl-detail-kpis').innerHTML=
-    '<div class="rl-detail-kpi"><div class="rl-detail-kpi-num" style="color:var(--ink)">'+(p.total||0)+'</div><div class="rl-detail-kpi-lbl">ÜBUNGEN GESAMT</div></div>'+
-    '<div class="rl-detail-kpi"><div class="rl-detail-kpi-num" style="color:var(--blue)">'+hrs+'</div><div class="rl-detail-kpi-lbl">AKTIVE ZEIT</div></div>'+
-    '<div class="rl-detail-kpi"><div class="rl-detail-kpi-num" style="color:var(--schreiben)">'+(p.mistakes||0)+'</div><div class="rl-detail-kpi-lbl">FEHLER TOTAL</div></div>';
+    '<div class="rl-detail-kpi"><div class="rl-detail-kpi-num" style="color:var(--ink)'+(isBlurred?';'+blurStyle:'')+'">'+(p.total||0)+'</div><div class="rl-detail-kpi-lbl">ÜBUNGEN GESAMT</div></div>'+
+    '<div class="rl-detail-kpi"><div class="rl-detail-kpi-num" style="color:var(--blue)'+(isBlurred?';'+blurStyle:'')+'">'+(isBlurred?'—':hrs)+'</div><div class="rl-detail-kpi-lbl">AKTIVE ZEIT</div></div>'+
+    '<div class="rl-detail-kpi"><div class="rl-detail-kpi-num" style="color:var(--schreiben)'+(isBlurred?';'+blurStyle:'')+'">'+(p.mistakes||0)+'</div><div class="rl-detail-kpi-lbl">FEHLER TOTAL</div></div>'+
+    (isBlurred?'<div style="grid-column:1/-1;font-family:IBM Plex Mono,monospace;font-size:9px;color:var(--muted);text-align:center;padding-top:4px">🙈 Dieser Nutzer hat seine Stats verborgen</div>':'');
   const skills=[
     {k:'schreiben',lbl:'SCHREIBEN',col:'var(--schreiben)'},
     {k:'hören',lbl:'HÖREN',col:'var(--hören)'},
@@ -3787,11 +3813,10 @@ function rlOpenDetail(name){
     const v=p[k]||0,pct=Math.round((v/maxV[k])*100);
     return '<div class="rl-detail-bar-row">'+
       '<div class="rl-detail-bar-lbl" style="color:'+col+'">'+lbl+'</div>'+
-      '<div class="rl-detail-bar-track"><div class="rl-detail-bar-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'+
-      '<div class="rl-detail-bar-val" style="color:'+col+'">'+v+'</div>'+
+      '<div class="rl-detail-bar-track"><div class="rl-detail-bar-fill" style="width:'+(isBlurred?0:pct)+'%;background:'+col+(isBlurred?';filter:blur(4px)':'')+'"></div></div>'+
+      '<div class="rl-detail-bar-val" style="color:'+col+(isBlurred?';'+blurStyle:'')+'">'+v+'</div>'+
     '</div>';
   }).join('');
-  const isYou=rlMe&&p.name.toLowerCase()===rlMe.toLowerCase();
   document.getElementById('rl-detail-footer').innerHTML=isYou
     ?'<button class="btn btn-ghost" style="font-size:10px;padding:7px 14px" onclick="rlDeletePlayer();rlDetailCloseBtn()">✕ Meinen Eintrag löschen</button>'
     :'<button class="btn btn-ink" style="font-size:10px;padding:7px 14px" onclick="chQuick(\''+esc(p.name)+'\');rlDetailCloseBtn()">⚔ Herausfordern</button>';
