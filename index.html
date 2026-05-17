@@ -1421,6 +1421,84 @@ header { padding: 44px 0 32px; }
 /* ══ RANGLISTE ══ */
 .nav-tab.rangliste-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
+/* ══ ARTIKEL STYLES ══ */
+.nav-tab.artikel-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+.art-post-card {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 22px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: background .15s;
+  position: relative;
+}
+.art-post-card:hover { background: var(--surface2); }
+.art-post-card.priority { border-left: 3px solid var(--blue); }
+.art-post-card:last-child { border-bottom: none; }
+
+.art-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--blue-glow); border: 1.5px solid rgba(26,74,122,.3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+  font-weight: 600; color: var(--blue); flex-shrink: 0;
+}
+
+.art-tag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  padding: 2px 9px; border-radius: 20px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted);
+}
+.art-priority-badge {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  padding: 2px 9px; border-radius: 20px;
+  background: var(--blue-glow); border: 1px solid rgba(26,74,122,.25);
+  color: var(--blue);
+}
+
+.art-action-btn {
+  background: none; border: none; cursor: pointer;
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  color: var(--muted); padding: 3px 8px; border-radius: 4px;
+  border: 1px solid transparent; transition: all .15s;
+  display: inline-flex; align-items: center; gap: 4px;
+  letter-spacing: 1px;
+}
+.art-action-btn:hover { border-color: var(--border2); color: var(--ink); }
+.art-action-btn.priority-active { color: var(--blue); border-color: rgba(26,74,122,.3); }
+.art-action-btn.del:hover { color: var(--accent); border-color: rgba(184,41,31,.3); }
+
+.art-filter-pill {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  padding: 4px 13px; border-radius: 20px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--muted); cursor: pointer; transition: all .15s;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.art-filter-pill.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+.art-compose-area {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.art-textarea {
+  width: 100%; min-height: 110px;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px;
+  padding: 12px 14px; outline: none; resize: vertical;
+  transition: border-color .2s; line-height: 1.65; box-sizing: border-box;
+}
+.art-textarea:focus { border-color: var(--ink); }
+.art-textarea::placeholder { color: var(--muted); }
+
 .rl-header { padding: 52px 0 36px; margin-bottom: 40px; position: relative; border-bottom: none; }
 .rl-header::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, var(--ink) 0%, var(--ink) 55%, transparent 100%); }
 .rl-header h1 em { color: var(--gold); font-style: italic; }
@@ -2200,6 +2278,9 @@ header { padding: 44px 0 32px; }
     <button class="nav-tab session-tab" id="nav-session" onclick="switchScreen('session')">
       ⚡ SESSION <span class="nav-tab-count session-live-dot" id="nav-count-session" style="display:none">●</span>
     </button>
+    <button class="nav-tab artikel-tab" id="nav-artikel" onclick="switchScreen('artikel')">
+      ARTIKEL <span class="nav-tab-count" id="nav-count-artikel"></span>
+    </button>
     <div class="nav-sync" id="nav-sync" style="display:none">
       <span class="nav-sync-dot" id="nav-sync-dot"></span>
       <span id="nav-sync-label">SYNC</span>
@@ -2644,6 +2725,62 @@ header { padding: 44px 0 32px; }
       </div>
     </div>
   </div><!-- /screen-session -->
+
+  <!-- ══ SCREEN: ARTIKEL ══ -->
+  <div class="screen" id="screen-artikel">
+    <header style="padding:44px 0 28px;border-bottom:2px solid var(--ink);margin-bottom:32px;position:relative;">
+      <div class="eyebrow">PERSÖNLICHE TEXTE — PRIVAT</div>
+      <h1>MEINE<br><em style="color:var(--blue)">ARTIKEL</em></h1>
+      <div class="header-sub">Schreibe auf Deutsch · Priorität setzen · Zum Memorisieren</div>
+      <div class="header-right">
+        <div id="art-total" class="header-total" style="color:var(--blue)">0</div>
+        <div class="header-total-label">ARTIKEL GESAMT</div>
+        <div id="art-priority-count" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--blue);margin-top:4px">0 mit Priorität</div>
+      </div>
+    </header>
+
+    <!-- COMPOSE -->
+    <div class="art-compose-area">
+      <div class="section-label" style="margin-bottom:14px">NEUEN ARTIKEL SCHREIBEN</div>
+      <div style="display:flex;gap:14px;align-items:flex-start">
+        <div class="art-avatar" id="art-avatar-compose">?</div>
+        <div style="flex:1;min-width:0">
+          <textarea class="art-textarea" id="art-textarea" placeholder="Was hast du heute auf Deutsch geschrieben? Teile einen Satz, einen Aufsatz, eine Geschichte — alles, was du memorisieren möchtest…" oninput="artCountChars()"></textarea>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <input class="add-input" id="art-tag-input" placeholder="Tag (z.B. B2-Aufsatz, Konjunktiv...)" style="flex:1;min-width:140px;padding:9px 14px;font-size:12px">
+            <label style="display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);cursor:pointer;white-space:nowrap;letter-spacing:1px">
+              <input type="checkbox" id="art-priority-check" style="accent-color:var(--blue)"> ⭐ PRIORITÄT
+            </label>
+            <button class="btn btn-ink" style="background:var(--blue);border-color:var(--blue)" onclick="artPost()">POSTEN →</button>
+            <span id="art-charcount" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-left:auto">0 Zeichen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+      <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted)">FILTER :</span>
+      <button class="art-filter-pill active" id="artf-all"      onclick="artSetFilter('all')">ALLE</button>
+      <button class="art-filter-pill"        id="artf-priority" onclick="artSetFilter('priority')">⭐ PRIORITÄT</button>
+      <button class="art-filter-pill"        id="artf-today"    onclick="artSetFilter('today')">HEUTE</button>
+    </div>
+
+    <!-- TAG FILTER (dynamic) -->
+    <div id="art-tag-filter-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;min-height:22px"></div>
+
+    <!-- SEARCH -->
+    <div class="search-wrap" style="margin-bottom:18px">
+      <input class="search-input" id="art-search" type="text" placeholder="Artikel durchsuchen..." oninput="artRender()">
+    </div>
+
+    <!-- FEED -->
+    <div id="art-feed" style="border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow-sm)"></div>
+    <div id="art-empty" style="display:none;text-align:center;padding:60px 20px;color:var(--muted);border:1px dashed var(--border2);border-radius:10px;background:rgba(253,250,244,.5)">
+      <div style="font-size:32px;margin-bottom:12px;opacity:.5">✍️</div>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:12px">Noch keine Artikel. Schreib deinen ersten Text oben!</p>
+    </div>
+  </div><!-- /screen-artikel -->
 
   <!-- PLAYER DETAIL MODAL -->
   <div class="rl-detail-overlay" id="rl-detail-overlay" onclick="rlDetailClose(event)">
@@ -5226,6 +5363,172 @@ mnRenderPalaceChips(); mnRenderPalaceFilter(); mnRender(); mnRenderGlobal();
 updateNavCounts();
 chLoad(); chRender();
 authInit();
+
+// ══════════════════════════════════════
+// MEINE ARTIKEL — Private writing feed
+// ══════════════════════════════════════
+let artFilter = 'all';
+let artTagFilter = null;
+
+function artEnsure() {
+  if (!state.artikel) state.artikel = [];
+}
+
+function artCountChars() {
+  const v = (document.getElementById('art-textarea') || {value:''}).value.length;
+  const el = document.getElementById('art-charcount');
+  if (el) el.textContent = v + ' Zeichen';
+}
+
+function artPost() {
+  artEnsure();
+  const taEl = document.getElementById('art-textarea');
+  const text = taEl ? taEl.value.trim() : '';
+  if (!text) { if(taEl) flash(taEl); return; }
+  const tag = (document.getElementById('art-tag-input') || {value:''}).value.trim();
+  const priority = document.getElementById('art-priority-check') ? document.getElementById('art-priority-check').checked : false;
+  const today = new Date().toLocaleDateString('de-DE');
+  state.artikel.unshift({
+    id: Date.now(), text, tag, priority,
+    date: today, timestamp: Date.now()
+  });
+  if (taEl) taEl.value = '';
+  const tagEl = document.getElementById('art-tag-input');
+  if (tagEl) tagEl.value = '';
+  const priEl = document.getElementById('art-priority-check');
+  if (priEl) priEl.checked = false;
+  const ccEl = document.getElementById('art-charcount');
+  if (ccEl) ccEl.textContent = '0 Zeichen';
+  save(); artRender(); artUpdateGlobal();
+}
+
+function artDelete(id) {
+  artEnsure();
+  state.artikel = state.artikel.filter(a => a.id !== id);
+  save(); artRender(); artUpdateGlobal();
+}
+
+function artTogglePriority(id) {
+  artEnsure();
+  const a = state.artikel.find(a => a.id === id);
+  if (a) a.priority = !a.priority;
+  save(); artRender(); artUpdateGlobal();
+}
+
+function artSetFilter(f) {
+  artFilter = f;
+  document.querySelectorAll('.art-filter-pill').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('artf-' + f);
+  if (el) el.classList.add('active');
+  artRender();
+}
+
+function artSetTagFilter(tag) {
+  artTagFilter = (artTagFilter === tag) ? null : tag;
+  artRender();
+}
+
+function artUpdateGlobal() {
+  artEnsure();
+  const total = state.artikel.length;
+  const prio = state.artikel.filter(a => a.priority).length;
+  const totalEl = document.getElementById('art-total');
+  const prioEl = document.getElementById('art-priority-count');
+  if (totalEl) totalEl.textContent = total;
+  if (prioEl) prioEl.textContent = prio + ' mit Priorität';
+  const navEl = document.getElementById('nav-count-artikel');
+  if (navEl) navEl.textContent = total || '';
+
+  if (authUser) {
+    const name = authUser.user_metadata?.full_name || authUser.email || '?';
+    const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const av = document.getElementById('art-avatar-compose');
+    if (av) av.textContent = initials;
+  }
+}
+
+function artRender() {
+  artEnsure();
+  const q = (document.getElementById('art-search') || {value:''}).value.toLowerCase().trim();
+  const today = new Date().toLocaleDateString('de-DE');
+
+  let list = [...state.artikel];
+  if (artFilter === 'priority') list = list.filter(a => a.priority);
+  if (artFilter === 'today') list = list.filter(a => a.date === today);
+  if (artTagFilter) list = list.filter(a => a.tag && a.tag.toLowerCase() === artTagFilter.toLowerCase());
+  if (q) list = list.filter(a => a.text.toLowerCase().includes(q) || (a.tag || '').toLowerCase().includes(q));
+
+  list.sort((a, b) => (b.priority ? 1 : 0) - (a.priority ? 1 : 0) || b.timestamp - a.timestamp);
+
+  // Render dynamic tag filter bar
+  const allTags = [...new Set(state.artikel.map(a => a.tag).filter(Boolean))];
+  const tagBar = document.getElementById('art-tag-filter-bar');
+  if (tagBar) {
+    if (allTags.length) {
+      tagBar.innerHTML = '<span style="font-family:\'IBM Plex Mono\',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);align-self:center">TAGS :</span>' +
+        allTags.map(t =>
+          `<button class="art-filter-pill${artTagFilter === t ? ' active' : ''}" onclick="artSetTagFilter('${esc(t)}')">${esc(t)}</button>`
+        ).join('');
+    } else {
+      tagBar.innerHTML = '';
+    }
+  }
+
+  const feed = document.getElementById('art-feed');
+  const empty = document.getElementById('art-empty');
+  if (!feed) return;
+
+  if (!list.length) {
+    feed.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    artUpdateGlobal();
+    return;
+  }
+
+  if (empty) empty.style.display = 'none';
+  feed.style.display = 'block';
+
+  const name = authUser ? (authUser.user_metadata?.full_name || authUser.email || 'Ich') : 'Ich';
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+  feed.innerHTML = list.map(a =>
+    `<div class="art-post-card${a.priority ? ' priority' : ''}">` +
+      `<div class="art-avatar">${esc(initials)}</div>` +
+      `<div style="flex:1;min-width:0">` +
+        `<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap">` +
+          `<span style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--ink)">${esc(name)}</span>` +
+          `<span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted)">${esc(a.date)}</span>` +
+          (a.priority ? `<span class="art-priority-badge">⭐ PRIORITÄT</span>` : '') +
+          (a.tag ? `<span class="art-tag">${esc(a.tag)}</span>` : '') +
+        `</div>` +
+        `<div style="font-family:'IBM Plex Sans',sans-serif;font-size:14px;line-height:1.7;color:var(--ink);white-space:pre-wrap;margin-bottom:12px">${esc(a.text)}</div>` +
+        `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">` +
+          `<button class="art-action-btn${a.priority ? ' priority-active' : ''}" onclick="artTogglePriority(${a.id})">` +
+            (a.priority ? '⭐ Priorität entfernen' : '☆ Priorisieren') +
+          `</button>` +
+          `<button class="art-action-btn del" onclick="artDelete(${a.id})">✕ Löschen</button>` +
+          `<span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted)">${a.text.length} Zeichen · ${esc(a.date)}</span>` +
+        `</div>` +
+      `</div>` +
+    `</div>`
+  ).join('');
+
+  artUpdateGlobal();
+}
+
+// Hook switchScreen for artikel
+const _artSwitchScreen = switchScreen;
+switchScreen = function(s) {
+  _artSwitchScreen(s);
+  if (s === 'artikel') { artEnsure(); artRender(); artUpdateGlobal(); }
+};
+
+// Hook authOnSignedIn for artikel
+const _artOrigAuth = authOnSignedIn;
+authOnSignedIn = function() {
+  _artOrigAuth.call(this);
+  artEnsure(); artRender(); artUpdateGlobal();
+};
 </script>
 </body>
 </html>
